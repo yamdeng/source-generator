@@ -6,6 +6,7 @@ const fs = require("fs");
 const AdmZip = require("adm-zip");
 const { tableSelectSql, columnSelectSql } = require("./sql-string");
 const Config = require("./config");
+const Constant = require("./constant");
 const pgFormatter = require("pg-formatter");
 
 const testSqlString = `INSERT INTO TO0_CORPORATION
@@ -124,11 +125,17 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
   const entityName = getEntityNameByTableName(tableName);
 
   let columnList = [];
+  let tableDescription = "";
 
   try {
-    const dbResponse = await db.raw(columnSelectSql, [tableName]);
-    columnList = dbResponse.rows;
+    const dbResponse1 = await db.raw(tableSelectSql, {
+      keyword: `%${tableName}%`,
+    });
+    const dbResponse2 = await db.raw(columnSelectSql, [tableName]);
+    columnList = dbResponse2.rows;
     console.log(columnList);
+    tableDescription = dbResponse1.rows[0].table_comment;
+    console.log("tableDescription : ", tableDescription);
   } catch (e) {
     console.log(e);
   }
@@ -154,6 +161,12 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
   let insertColumns = "";
   let insertValues = "";
   let updateColums = "";
+  let dtoMembers = "";
+
+  // @Schema(description = "<%= tableDescription %>")
+  // private int num;
+  //   @NotBlank
+  // @NotNull
 
   columnList.forEach((columnDbInfo, columnListIndex) => {
     const { column_name, column_comment, camel_case } = columnDbInfo;
@@ -168,7 +181,7 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
   });
 
   saveColumnList.forEach((columnDbInfo, columnListIndex) => {
-    const { column_name, column_comment, camel_case } = columnDbInfo;
+    const { column_name, java_type, column_comment, camel_case } = columnDbInfo;
     // 마지막이 아닌 경우에만 반영
     if (columnListIndex !== saveColumnList.length - 1) {
       insertColumns = insertColumns + column_name + ", ";
@@ -179,9 +192,11 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
       insertValues = insertValues + `#{${camel_case}}`;
       updateColums = updateColums + `${column_name} = #{${camel_case}}`;
     }
+    dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
   });
 
   const ejsParameter = {
+    tableDescription: tableDescription,
     columnList: columnList,
     saveColumnList: saveColumnList,
     packageName: Config.javaBasePackage,
@@ -194,6 +209,7 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     insertValues: insertValues,
     updateColums: updateColums,
     nowDateSqlString: Config.nowDateSqlString,
+    dtoMembers: dtoMembers,
   };
 
   const generatorFileMapKeys = _.keys(generatorFileMap);
@@ -201,8 +217,16 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     const templateContentString = generatorFileMap[generatorKey];
     const bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
     result[generatorKey] = bindMappingResultString;
-    const resultFileName = `${entityName}Sql.xml`;
-    fs.writeFileSync(`./result/${resultFileName}`, bindMappingResultString);
+    let resultFileName = "";
+    if (generatorKey === Constant.GENERATE_TYPE_SQL) {
+      resultFileName = `${entityName}Sql.xml`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_DTO) {
+      resultFileName = `${entityName}DTO.java`;
+    }
+    console.log("bindMappingResultString : ", bindMappingResultString);
+    if (resultFileName) {
+      fs.writeFileSync(`./result/${resultFileName}`, bindMappingResultString);
+    }
   });
 
   res.json(result);

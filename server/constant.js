@@ -13,6 +13,7 @@ const Constant = {
   ENTITY_EXTRACT_STRATEGY_SLICE_TABLE_NAME: "slicePrefixTableName",
   ENTITY_EXTRACT_STRATEGY_MAPPING: "mappingEntity",
   GENERATE_TYPE_SQL: "sql",
+  GENERATE_TYPE_DTO: "dto",
 };
 
 module.exports = Constant;

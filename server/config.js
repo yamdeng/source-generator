@@ -11,6 +11,10 @@ const Config = {
       generatorKey: "sql",
       fileName: "sql.ejs",
     },
+    {
+      generatorKey: "dto",
+      fileName: "dto.ejs",
+    },
   ],
   applyXmlSqlIdEntity: false,
   nowDateSqlString: "now()",
