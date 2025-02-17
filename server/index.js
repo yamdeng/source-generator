@@ -153,6 +153,7 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
 
   let insertColumns = "";
   let insertValues = "";
+  let updateColums = "";
 
   columnList.forEach((columnDbInfo, columnListIndex) => {
     const { column_name, column_comment, camel_case } = columnDbInfo;
@@ -172,9 +173,11 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     if (columnListIndex !== saveColumnList.length - 1) {
       insertColumns = insertColumns + column_name + ", ";
       insertValues = insertValues + `#{${camel_case}}, `;
+      updateColums = updateColums + `${column_name} = #{${camel_case}}, `;
     } else {
       insertColumns = insertColumns + column_name;
       insertValues = insertValues + `#{${camel_case}}`;
+      updateColums = updateColums + `${column_name} = #{${camel_case}}`;
     }
   });
 
@@ -189,6 +192,7 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     primaryKeyConditions: primaryKeyConditions,
     insertColumns: insertColumns,
     insertValues: insertValues,
+    updateColums: updateColums,
     nowDateSqlString: Config.nowDateSqlString,
   };
 
