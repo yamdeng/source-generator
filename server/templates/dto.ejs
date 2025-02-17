@@ -1,14 +1,12 @@
 package <%= packageName %>.dto;
 
 import com.orbiswork.gw.dto.CommonDto;
-
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+<% if(existNotNullColumn) { %>import jakarta.validation.constraints.NotNull;<% } %>
+<% if(existNotBlankColumn) { %>import jakarta.validation.constraints.NotBlank;<% } %>
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
 
 @Getter
 @Setter

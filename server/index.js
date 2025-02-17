@@ -180,8 +180,13 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     }
   });
 
+  let existNotNullColumn = false;
+  let existNotBlankColumn = false;
+
   saveColumnList.forEach((columnDbInfo, columnListIndex) => {
-    const { column_name, java_type, column_comment, camel_case } = columnDbInfo;
+    const { column_name, java_type, column_comment, camel_case, is_nullable } = columnDbInfo;
+    let notNullAnnotationApply = false;
+    let notBlankAnnotationApply = false;
     // 마지막이 아닌 경우에만 반영
     if (columnListIndex !== saveColumnList.length - 1) {
       insertColumns = insertColumns + column_name + ", ";
@@ -192,7 +197,22 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
       insertValues = insertValues + `#{${camel_case}}`;
       updateColums = updateColums + `${column_name} = #{${camel_case}}`;
     }
-    dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+    if (is_nullable) {
+      if (java_type === "String") {
+        existNotBlankColumn = true;
+        notBlankAnnotationApply = true;
+      } else {
+        existNotNullColumn = true;
+        notNullAnnotationApply = true;
+      }
+    }
+    if (notNullAnnotationApply) {
+      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotNull\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+    } else if (notBlankAnnotationApply) {
+      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotBlank\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+    } else {
+      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+    }
   });
 
   const ejsParameter = {
@@ -210,6 +230,8 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     updateColums: updateColums,
     nowDateSqlString: Config.nowDateSqlString,
     dtoMembers: dtoMembers,
+    existNotNullColumn: existNotNullColumn,
+    existNotBlankColumn: existNotBlankColumn,
   };
 
   const generatorFileMapKeys = _.keys(generatorFileMap);
