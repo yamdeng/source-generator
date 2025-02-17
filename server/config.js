@@ -14,6 +14,7 @@ const Config = {
   ],
   applyXmlSqlIdEntity: false,
   nowDateSqlString: "now()",
+  isMapperNameSpaceFullPackage: false,
 };
 
 const tableEntityMapping = {

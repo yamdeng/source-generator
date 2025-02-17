@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapperNamespace, packageName, entityName, tableName, columnNames, primaryKeyConditions, nowDateSqlString, selectColumnNames, insertColumns, insertValues, updateColums -->
+<mapper namespace="ApprovalDoc">
+
+  <!-- tas_a_doc 상세 조회 -->
+  <select id="selectDetail" parameterType="com.orbis.gw.dto.ApprovalDocDTO" resultType="com.orbis.gw.dto.ApprovalDocDTO">
+    SELECT
+        multi_order, /* 다중문서 번호 */ 
+				a_html_doc_data, /* HTML 서식 데이타 */ 
+				a_xml_meta_data, /* 메타 데이타 */ 
+				reg_date, /* 등록일시 */ 
+				reg_user_key, /* 등록자 키 */ 
+				a_doc_key, /* 결재 문서 키 */ 
+				a_hwp_doc_data, /* HWP 서식 데이타 */ 
+				parser_key, /* 파서 키 */ 
+				a_html_meta_data /* HWP 기안양식의 HTML 정 */
+      FROM tas_a_doc
+     WHERE 1=1 AND 
+  </select>
+
+  <!-- tas_a_doc 상세 조회 -->
+  <select id="selectDetail" parameterType="com.orbis.gw.dto.ApprovalDocDTO" resultType="com.orbis.gw.dto.ApprovalDocDTO">
+    SELECT  
+        multi_order, /* 다중문서 번호 */   
+        a_html_doc_data, /* HTML 서식 데이타 */   
+        a_xml_meta_data, /* 메타 데이타 */   
+        reg_date, /* 등록일시 */   
+        reg_user_key, /* 등록자 키 */   
+        a_doc_key, /* 결재 문서 키 */   
+        a_hwp_doc_data, /* HWP 서식 데이타 */   
+        parser_key, /* 파서 키 */   
+        a_html_meta_data /* HWP 기안양식의 HTML 정 */ 
+      FROM tas_a_doc
+     WHERE 1=1 AND 
+  </select>
+
+</mapper>

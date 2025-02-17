@@ -12,20 +12,6 @@ const testSqlString = `INSERT INTO TO0_CORPORATION
 (A_DOC_KEY, A_DOC_NUM, SITE_KEY, A_DOC_NAME, SEND_TYPE_CODE, DOC_TYPE_CODE, REAL_A_STATUS, SECRET_LEVEL_CODE, OPEN_TYPE, TIME_LIMIT, DEPT_KEY, SPEED_YN, SECURITY_YN, SECURITY_END_DAY, HISTORY_M_YN, PAGE, A_SUMMARY, BEFORE_A_DOC_KEY, BEFORE_R_DOC_KEY, ATTACHED_YN, HISTORY_YN, DISPLAY_YN, RETURN_YN, RECOVERY_YN, COMMENTS_YN, EXECUTE_DATE, DRAFT_DATE, DRAFT_USER_KEY, REG_USER_KEY, MOD_DATE, MOD_USER_KEY, USE_YN, S_DOC_KEY, RECORDS_NUM, A_END_DATE, R_DEPT_YN, STORAGE_KEY, P_REG_NUM, IO_DIV, ADD_COL1, ADD_COL2, ADD_COL3, ADD_COL4, ADD_COL5, ADD_COL6)
 VALUES(#{aDocKey}, #{aDocNum}, #{siteKey}, #{aDocName}, #{sendTypeCode}, #{docTypeCode}, #{realAStatus}, #{secretLevelCode}, #{openType}, #{timeLimit}, #{deptKey}, #{speedYn}, #{securityYn}, #{securityEndDay}, #{historyMYn}, #{page}, #{aSummary}, #{beforeADocKey}, #{beforeRDocKey}, #{attachedYn}, #{historyYn}, #{displayYn}, #{returnYn}, #{recoveryYn}, #{commentsYn}, #{executeDate}, #{draftDate}, #{draftUserKey}, #{regUserKey}, #{modDate}, #{modUserKey}, #{useYn}, #{sDocKey}, #{recordsNum}, #{aEndDate}, #{rDeptYn}, #{storageKey}, #{pRegNum}, #{ioDiv}, #{addCol1}, #{addCol2}, #{addCol3}, #{addCol4}, #{addCol5}, #{addCol6})`;
 
-const testSqlString2 = `select cor_name, cor_key from TO0_CORPORATION where 1=1 and cor_name =''`;
-
-// const {
-//   listComponentGenerateString,
-//   formStoreGenerateString,
-//   formViewGenerateString,
-//   detailViewGenerateString,
-//   detailViewGenerateNoStoreString,
-//   formModalGenerateString,
-//   formUseStateModalGenerateString,
-//   detailModalGenerateString,
-//   searchFormGenerateString,
-// } = require("./generate-string");
-
 // DB 정보
 const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_DATABASE, SERVER_PORT } = process.env;
 const db = require("knex")({
@@ -40,10 +26,8 @@ const db = require("knex")({
   },
 });
 
-// generator map 변수
-const generatorFileMap = {};
-
 // ======= server init start =======
+
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -66,43 +50,19 @@ if (!fs.existsSync(resultDirectory)) {
   fs.mkdirSync(resultDirectory);
 }
 
+// Config log print
 console.log(`Config : `, Config);
 
+// generator map 변수 셋팅
+const generatorFileMap = {};
 readTemplateFile();
 
 // ======= server init end =======
 
-// test api
-
+/* 기본 기능 테스트 api */
 app.get("/api/test", async (req, res) => {
-  // const formatResult = format(testSqlString);
-  // const formatResult = pgFormatter.format(testSqlString);
-  // const formatResult = pgFormatter.format(testSqlString, {
-  //   params: {}, // `#{}` 변수를 그대로 유지하는 효과는 없음
-  // });
-  // console.info("formatResult", formatResult);
-
-  // start
-
-  // 1. `#{}` 변수를 임시 플레이스홀더로 변경
-  const placeholderMap = {};
-  let index = 0;
-
-  const transformedSQL = testSqlString.replace(/#\{([^}]+)\}/g, (_, key) => {
-    const placeholder = `__PLACEHOLDER_${index++}__`;
-    placeholderMap[placeholder] = `#{${key}}`;
-    return placeholder;
-  });
-
-  // 2. SQL 포맷팅 수행
-  const formattedSQL = pgFormatter.format(transformedSQL);
-
-  // 3. 포맷된 SQL에서 원래 `#{}` 변수를 복원
-  const finalSQL = formattedSQL.replace(/__PLACEHOLDER_\d+__/g, (match) => placeholderMap[match]);
-
+  const finalSQL = formatSqlString(testSqlString);
   console.log(finalSQL);
-
-  // end
   res.json({
     result: finalSQL,
     orginal: testSqlString,
@@ -150,11 +110,70 @@ app.get("/api/columns/:tableName", async (req, res) => {
 // api/generate/backend/{generateType} { tableName, checkedColumns }
 // api/generate/frontend
 
-// namespace, packageName, entityName, tableName, columnNames, primaryKeyConditions, nowDateSqlString
-// isMapper => namespace (풀패키지) 아니면 entityName
+// mapperNamespace, packageName, entityName, tableName, columnNames, primaryKeyConditions, nowDateSqlString, selectColumnNames, insertColumns, insertValues, updateColums
 
+// generate 문자열 반환 : /api/generate/:tableName
+app.post("/api/generate/backend/:tableName", async (req, res) => {
+  const tableName = req.params.tableName;
+  // let checkedColumns = req.body.checkedColumns || [];
+  // let checkedMultiColumn = req.body.checkedMultiColumn;
+  // let checkedModalUseState = req.body.checkedModalUseState;
+  // let checkedInnerFormStore = req.body.checkedInnerFormStore;
+  // let checkedSearchFormDetail = req.body.checkedSearchFormDetail;
+  const result = {};
+  const entityName = getEntityNameByTableName(tableName);
+
+  let columnList = [];
+
+  try {
+    const dbResponse = await db.raw(columnSelectSql, [tableName]);
+    columnList = dbResponse.rows;
+    console.log(columnList);
+  } catch (e) {
+    console.log(e);
+  }
+
+  let selectColumnNames = "";
+
+  columnList.forEach((columnDbInfo, columnListIndex) => {
+    const { column_name, column_comment, camel_case } = columnDbInfo;
+    // 마지막이 아닌 경우에만 반영
+    if (columnListIndex !== columnList.length - 1) {
+      selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name}, /* ${column_comment} */ \n`;
+      // selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} as ${camel_case}, /* ${column_comment} */ \n`;
+    } else {
+      selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} /* ${column_comment} */`;
+      // selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} as ${camel_case} /* ${column_comment} */`;
+    }
+  });
+
+  // selectColumnNames
+  // primaryKeyConditions
+  const ejsParameter = {
+    columnList: columnList,
+    packageName: Config.javaBasePackage,
+    mapperNamespace: Config.isMapperNameSpaceFullPackage ? `${Config.javaBasePackage}.mapper.${entityName}` : entityName,
+    tableName: tableName,
+    entityName: entityName,
+    selectColumnNames: selectColumnNames,
+    primaryKeyConditions: "",
+  };
+
+  const generatorFileMapKeys = _.keys(generatorFileMap);
+  generatorFileMapKeys.forEach((generatorKey) => {
+    // result[generatorKey] = '';
+    const templateContentString = generatorFileMap[generatorKey];
+    const bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
+    result[generatorKey] = bindMappingResultString;
+    const resultFileName = `${entityName}Sql.xml`;
+    fs.writeFileSync(`./result/${resultFileName}`, bindMappingResultString);
+  });
+
+  res.json(result);
+});
+
+/* 서버 구동시 generatorFileMap 변수에 generatorKey, fileName 반영 */
 function readTemplateFile() {
-  // 1. 템플릿 파일을 미리 읽어서 메모리에 저장
   const templateFileList = Config.templateFileList;
   templateFileList.forEach((templateFileInfo) => {
     const { generatorKey, fileName } = templateFileInfo;
@@ -164,25 +183,32 @@ function readTemplateFile() {
   });
 }
 
+/* ejs 렌더와 format을 동시에하는 함수 */
+function convertTemplateSqlString(sqlString, ejsParameter) {
+  // return formatSqlString(applyEjsRender(sqlString, ejsParameter));
+  return applyEjsRender(sqlString, ejsParameter);
+}
+
+/* ejs 렌더 */
 function applyEjsRender(ejsContent, ejsParameter) {
   return ejs.render(ejsContent, ejsParameter);
 }
 
-// 1.templates file 기준으로 : SQL.xml 데이터 바인딩 및 특정한 경로에 파일 생성
-//  -api/generator/backend/{type} => type 'sql' || 'dto' | 'dao : test' | 'service' | 'controller'
+/* 테이블명을 기준으로 Entity명(기준명) 추출 */
+function getEntityNameByTableName(tableName) {
+  return Config.tableEntityMapping[tableName.toUpperCase()];
+}
 
-/*
-  1.templates에 있는 SQL.xml 파일을 읽어서 단순하게 바인딩하는 예제 확인
-   1-1.g 기준 replace
-   1-2.ejb 라이브러리 사용
-
-  2.
-
-*/
-
-function getApplyFileName(camelCaseTableName) {
-  // let camelCaseTableName = _.camelCase(tableName);
-  // return camelCaseTableName.charAt(0).toUpperCase() + camelCaseTableName.slice(1);
-  // 테이블명이 tb_로 시작해서 앞을 자름
-  return camelCaseTableName.slice(2);
+/* sql 문자열 포맷팅 */
+function formatSqlString(ejsRenderAfterSqlString) {
+  const placeholderMap = {};
+  let index = 0;
+  const transformedSQL = ejsRenderAfterSqlString.replace(/#\{([^}]+)\}/g, (_, key) => {
+    const placeholder = `__PLACEHOLDER_${index++}__`;
+    placeholderMap[placeholder] = `#{${key}}`;
+    return placeholder;
+  });
+  const formattedSQL = pgFormatter.format(transformedSQL);
+  const finalSQL = formattedSQL.replace(/__PLACEHOLDER_\d+__/g, (match) => placeholderMap[match]);
+  return finalSQL;
 }
