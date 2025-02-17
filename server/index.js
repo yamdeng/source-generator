@@ -134,8 +134,15 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
   }
 
   let selectColumnNames = "";
-
   let pkColumnList = columnList.filter((columnInfo) => columnInfo.is_primary_key === "Y");
+  let saveColumnList = columnList.filter((columnInfo) => {
+    const { column_name } = columnInfo;
+    if (Config.basicColumnList.find((basicColumnName) => basicColumnName === column_name)) {
+      return false;
+    }
+    return true;
+  });
+
   let primaryKeyConditions = "";
   if (pkColumnList.length !== 0) {
     pkColumnList.forEach((pkColumnInfo) => {
@@ -143,6 +150,9 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
       primaryKeyConditions = primaryKeyConditions + ` AND ${column_name} = #{${_.camelCase(column_name)}}`;
     });
   }
+
+  let insertColumns = "";
+  let insertValues = "";
 
   columnList.forEach((columnDbInfo, columnListIndex) => {
     const { column_name, column_comment, camel_case } = columnDbInfo;
@@ -156,21 +166,34 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     }
   });
 
-  // selectColumnNames
-  // primaryKeyConditions
+  saveColumnList.forEach((columnDbInfo, columnListIndex) => {
+    const { column_name, column_comment, camel_case } = columnDbInfo;
+    // 마지막이 아닌 경우에만 반영
+    if (columnListIndex !== saveColumnList.length - 1) {
+      insertColumns = insertColumns + column_name + ", ";
+      insertValues = insertValues + `#{${camel_case}}, `;
+    } else {
+      insertColumns = insertColumns + column_name;
+      insertValues = insertValues + `#{${camel_case}}`;
+    }
+  });
+
   const ejsParameter = {
     columnList: columnList,
+    saveColumnList: saveColumnList,
     packageName: Config.javaBasePackage,
     mapperNamespace: Config.isMapperNameSpaceFullPackage ? `${Config.javaBasePackage}.mapper.${entityName}` : entityName,
     tableName: tableName,
     entityName: entityName,
     selectColumnNames: selectColumnNames,
     primaryKeyConditions: primaryKeyConditions,
+    insertColumns: insertColumns,
+    insertValues: insertValues,
+    nowDateSqlString: Config.nowDateSqlString,
   };
 
   const generatorFileMapKeys = _.keys(generatorFileMap);
   generatorFileMapKeys.forEach((generatorKey) => {
-    // result[generatorKey] = '';
     const templateContentString = generatorFileMap[generatorKey];
     const bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
     result[generatorKey] = bindMappingResultString;
