@@ -9,7 +9,7 @@
     SELECT
         <%= selectColumnNames %>
       FROM <%= tableName %>
-     WHERE 1=1 AND <%= primaryKeyConditions %>
+     WHERE 1=1 <%= primaryKeyConditions %>
   </select>
 
   <!-- <%= tableName %> 상세 조회 foreach 버전 -->
@@ -18,7 +18,7 @@
         <%= columnInfo.column_name %> /* <%- columnInfo.column_comment %> */<% } else { %>
         <%= columnInfo.column_name %>, /* <%- columnInfo.column_comment %> */ <% } %> <% }) %>
       FROM <%= tableName %>
-     WHERE 1=1 AND <%= primaryKeyConditions %>
+     WHERE 1=1 <%= primaryKeyConditions %>
   </select>
 
 </mapper>

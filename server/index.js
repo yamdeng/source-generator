@@ -135,6 +135,15 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
 
   let selectColumnNames = "";
 
+  let pkColumnList = columnList.filter((columnInfo) => columnInfo.is_primary_key === "Y");
+  let primaryKeyConditions = "";
+  if (pkColumnList.length !== 0) {
+    pkColumnList.forEach((pkColumnInfo) => {
+      const { column_name } = pkColumnInfo;
+      primaryKeyConditions = primaryKeyConditions + ` AND ${column_name} = #{${_.camelCase(column_name)}}`;
+    });
+  }
+
   columnList.forEach((columnDbInfo, columnListIndex) => {
     const { column_name, column_comment, camel_case } = columnDbInfo;
     // 마지막이 아닌 경우에만 반영
@@ -156,7 +165,7 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     tableName: tableName,
     entityName: entityName,
     selectColumnNames: selectColumnNames,
-    primaryKeyConditions: "",
+    primaryKeyConditions: primaryKeyConditions,
   };
 
   const generatorFileMapKeys = _.keys(generatorFileMap);
