@@ -8,7 +8,7 @@ SELECT DISTINCT data_type
 FROM information_schema.columns
 ORDER BY data_type;
 
--- 컬럼 기본 정보 조회 유형 2
+-- 컬럼 기본 정보 조회 유형 1
 -- 테이블명, 컬럼명, 컬럼주석, 컬럼타입, size, null 허용, 기본값, pk여부, java_type
 SELECT ordinal_position
        ,table_name
@@ -43,7 +43,7 @@ SELECT ordinal_position
           WHEN cols.data_type IN( 'text' ) THEN 'String'
           WHEN cols.data_type IN( 'bytea' ) THEN 'byte[]'
           ELSE cols.data_type
-               || 'ssxx'
+               || 'require checked'
         end                                                                        AS java_type
        ,REPLACE(Initcap(REPLACE(column_name, '_', ' ')), ' ', '')                  AS pascal_case
        ,Lower(Substring(REPLACE(Initcap(REPLACE(column_name, '_', ' ')), ' ', ''), 1, 1))
@@ -52,7 +52,7 @@ FROM   information_schema.columns cols
 WHERE  table_name = Lower('tas_a_doc_info')
 ORDER  BY ordinal_position;
 
--- 컬럼 기본 정보 조회 유형 1 : join
+-- 컬럼 기본 정보 조회 유형 2 : join
 -- 테이블명, 컬럼명, 컬럼주석, 컬럼타입, size, null 허용, 기본값, pk여부, java_type
 SELECT cols.table_name                                                                  AS table_name
        ,cols.column_name                                                                AS column_name
@@ -83,7 +83,7 @@ SELECT cols.table_name                                                          
           WHEN cols.data_type IN( 'text' ) THEN 'String'
           WHEN cols.data_type IN( 'bytea' ) THEN 'byte[]'
           ELSE cols.data_type
-               || 'required check'
+               || 'require checked'
         END                                                                             AS java_type
        ,Replace(Initcap(Replace(cols.column_name, '_', ' ')), ' ', '')                  AS pascal_case
        ,Lower(Substring(Replace(Initcap(Replace(cols.column_name, '_', ' ')), ' ', ''), 1, 1))
