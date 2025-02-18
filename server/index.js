@@ -215,7 +215,7 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     columnList: columnList,
     saveColumnList: saveColumnList,
     packageName: Config.javaBasePackage,
-    mapperNamespace: Config.isMapperNameSpaceFullPackage ? `${Config.javaBasePackage}.mapper.${entityName}Mapper` : entityName,
+    mapperNamespace: entityName,
     tableName: tableName,
     entityName: entityName,
     selectColumnNames: selectColumnNames,
@@ -236,15 +236,13 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
   const generatorFileMapKeys = _.keys(generatorFileMap);
   generatorFileMapKeys.forEach((generatorKey) => {
     const templateContentString = generatorFileMap[generatorKey];
-    const bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
-    result[generatorKey] = bindMappingResultString;
+    ejsParameter.mapperNamespace = entityName;
     let resultFileName = "";
     if (generatorKey === Constant.GENERATE_TYPE_SQL) {
-      if (Config.isMapperNameSpaceFullPackage) {
-        resultFileName = `${entityName}Mapper.xml`;
-      } else {
-        resultFileName = `${entityName}Sql.xml`;
-      }
+      resultFileName = `${entityName}Sql.xml`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_MAPPER_SQL) {
+      ejsParameter.mapperNamespace = `${Config.javaBasePackage}.mapper.${entityName}Mapper`;
+      resultFileName = `${entityName}Mapper.xml`;
     } else if (generatorKey === Constant.GENERATE_TYPE_DTO) {
       resultFileName = `${entityName}Dto.java`;
     } else if (generatorKey === Constant.GENERATE_TYPE_MYABITS_MAPPER) {
@@ -263,6 +261,8 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
       resultFileName = `${entityName}MapperTest.java`;
     }
 
+    const bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
+    result[generatorKey] = bindMappingResultString;
     console.log("bindMappingResultString : ", bindMappingResultString);
     if (resultFileName) {
       fs.writeFileSync(`./result/${resultFileName}`, bindMappingResultString);

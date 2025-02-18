@@ -1,0 +1,67 @@
+package <%= packageName %>.dao;
+
+import com.orbiswork.gw.common.repository.CommonSqlDao;
+import com.orbiswork.gw.dto.<%= entityName %>Dto;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@SpringBootTest
+@Slf4j
+public class <%= entityName %>DaoTest {
+
+    @Autowired
+    private CommonSqlDao commonSqlDao;
+
+    @Test
+    @Disabled
+    public void test<%= entityName %>SelectDetail() {
+        <%= entityName %>Dto detailInfo = commonSqlDao.selectOne("<%= entityName %>.selectDetail", "a");
+        log.info("detailInfo: {}", detailInfo);
+    }
+
+    @Test
+    @Disabled
+    public void test<%= entityName %>SelectList() {
+        <%= entityName %>Dto dto = <%= entityName %>Dto.builder()
+                .build();
+        List<<%= entityName %>Dto> list = commonSqlDao.selectList("<%= entityName %>.selectList", dto);
+        log.info("list: {}", list);
+    }
+
+    @Test
+    @Disabled
+    public void test<%= entityName %>Insert() {
+        <%= entityName %>Dto dto = <%= entityName %>Dto.builder()<% saveColumnList.forEach((columnInfo, columnListIndex)=> { %> <% if(columnInfo.java_type === 'String') { %>
+                .<%= columnInfo.camel_case %>("")<% } else { %>
+                .<%= columnInfo.camel_case %>(null) <% } %> <% }) %>
+                .regDate(LocalDateTime.now())
+                .modDate(LocalDateTime.now())
+                .build();
+        commonSqlDao.insert("<%= entityName %>.insert", dto);
+    }
+
+    @Test
+    @Disabled
+    public void test<%= entityName %>Update() {
+        <%= entityName %>Dto dto = <%= entityName %>Dto.builder()<% saveColumnList.forEach((columnInfo, columnListIndex)=> { %> <% if(columnInfo.java_type === 'String') { %>
+                .<%= columnInfo.camel_case %>("")<% } else { %>
+                .<%= columnInfo.camel_case %>(null) <% } %> <% }) %>
+                .regDate(LocalDateTime.now())
+                .modDate(LocalDateTime.now())
+                .build();
+        commonSqlDao.update("<%= entityName %>.update", dto);
+    }
+
+    @Test
+    @Disabled
+    public void test<%= entityName %>Delete() {
+        commonSqlDao.delete("<%= entityName %>.delete", "");
+    }
+    
+}

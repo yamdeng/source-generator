@@ -3,6 +3,7 @@ const Constant = {
   ENTITY_EXTRACT_STRATEGY_SLICE_TABLE_NAME: "slicePrefixTableName",
   ENTITY_EXTRACT_STRATEGY_MAPPING: "mappingEntity",
   GENERATE_TYPE_SQL: "sql",
+  GENERATE_TYPE_MAPPER_SQL: "mapper-sql",
   GENERATE_TYPE_DTO: "dto",
   GENERATE_TYPE_CONTROLLER: "controller",
   GENERATE_TYPE_SERVICE_INTERFACE: "service-interface",

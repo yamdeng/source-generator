@@ -12,6 +12,10 @@ const Config = {
       fileName: "sql.ejs",
     },
     {
+      generatorKey: Constant.GENERATE_TYPE_MAPPER_SQL,
+      fileName: "sql.ejs",
+    },
+    {
       generatorKey: Constant.GENERATE_TYPE_MYABITS_MAPPER,
       fileName: "mybatis-mapper.ejs",
     },
