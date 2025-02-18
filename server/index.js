@@ -257,6 +257,10 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
       resultFileName = `${entityName}ServiceImpl.java`;
     } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_CLASS_MAPPER) {
       resultFileName = `${entityName}ServiceMapperImpl.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_TEST_COMMON_DAO) {
+      resultFileName = `${entityName}DaoTest.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_TEST_MYBATIS_MAPPER) {
+      resultFileName = `${entityName}MapperTest.java`;
     }
 
     console.log("bindMappingResultString : ", bindMappingResultString);
@@ -302,7 +306,7 @@ function getApiPathNameByTableName(tableName) {
   if (apiPath) {
     return apiPath;
   }
-  return _.kebabCase(entityName);
+  return `/${_.kebabCase(entityName)}`;
 }
 
 /* sql 문자열 포맷팅 */

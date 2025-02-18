@@ -35,6 +35,14 @@ const Config = {
       generatorKey: Constant.GENERATE_TYPE_SERVICE_CLASS_MAPPER,
       fileName: "service-class-mapper.ejs",
     },
+    {
+      generatorKey: Constant.GENERATE_TYPE_TEST_COMMON_DAO,
+      fileName: "test-common-dao.ejs",
+    },
+    {
+      generatorKey: Constant.GENERATE_TYPE_TEST_MYBATIS_MAPPER,
+      fileName: "test-mybatis-mapper.ejs",
+    },
   ],
   applyXmlSqlIdEntity: false,
   nowDateSqlString: "now()",

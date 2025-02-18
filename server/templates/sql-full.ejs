@@ -42,7 +42,7 @@
   </insert>
 
   <!-- <%= tableName %> update -->
-  <update id="update" parameterType="<%= packageName %>.dto.${Entity}Dto">
+  <update id="update" parameterType="<%= packageName %>.dto.<%= entityName %>Dto">
     UPDATE <%= tableName %> 
        SET <%= updateColums %>, mod_date = <%= nowDateSqlString %>, mod_user_key = #{modUserKey}
      WHERE <%= primaryKeyConditions %>

@@ -1,14 +1,11 @@
 package <%= packageName %>.service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import <%= packageName %>.common.service.AbstractCommonDaoService;
 import <%= packageName %>.dto.<%= entityName %>Dto;
 
@@ -18,28 +15,28 @@ public class <%= entityName %>ServiceImpl extends AbstractCommonDaoService imple
 
     @Override
     public <%= entityName %>Dto select<%= entityName %>(<%= idDefaultJavaType %> id) {
-        return commonDaoSql.selectOne("<%= entityName %>.selectDetail", id);
+        return commonSqlDao.selectOne("<%= entityName %>.selectDetail", id);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto dto) {
-        List<<%= entityName %>Dto> resultList = commonDaoSql.selectList("<%= entityName %>.selectList", dto);
+        List<<%= entityName %>Dto> resultList = commonSqlDao.selectList("<%= entityName %>.selectList", dto);
         return PageInfo.of(resultList);
     }
 
     @Override
     public void insert<%= entityName %>(<%= entityName %>Dto dto) {
-        commonDaoSql.insert("<%= entityName %>.insert", dto);
+        commonSqlDao.insert("<%= entityName %>.insert", dto);
     }
 
     @Override
     public void update<%= entityName %>(<%= entityName %>Dto dto) {
-        commonDaoSql.update("<%= entityName %>.update", dto);
+        commonSqlDao.update("<%= entityName %>.update", dto);
     }
 
     @Override
     public void delete<%= entityName %>(<%= idDefaultJavaType %> id) {
-        commonDaoSql.delete("<%= entityName %>.delete", id);
+        commonSqlDao.delete("<%= entityName %>.delete", id);
     }
 }
