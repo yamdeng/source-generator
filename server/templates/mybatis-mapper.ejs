@@ -1,0 +1,23 @@
+package <%= packageName %>.mapper;
+
+import <%= packageName %>.dto.<%= entityName %>Dto;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+@Mapper
+public interface <%= entityName %>Mapper {
+
+    <%= entityName %>Dto selectDetail(<%= idDefaultJavaType %> id);
+
+    List<<%= entityName %>Dto> selectList(<%= entityName %>Dto dto);
+
+    void insert(<%= entityName %>Dto dto);
+
+    void update(<%= entityName %>Dto dto);
+
+    void delete(<%= idDefaultJavaType %> id);
+
+}
+
+

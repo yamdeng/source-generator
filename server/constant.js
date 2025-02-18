@@ -8,6 +8,7 @@ const Constant = {
   GENERATE_TYPE_SERVICE_INTERFACE: "service-interface",
   GENERATE_TYPE_SERVICE_CLASS: "service-class",
   GENERATE_TYPE_SERVICE_CLASS_MAPPER: "service-class-mapper",
+  GENERATE_TYPE_MYABITS_MAPPER: "mybatis-mapper",
 };
 
 module.exports = Constant;

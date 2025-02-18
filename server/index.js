@@ -163,11 +163,6 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
   let updateColums = "";
   let dtoMembers = "";
 
-  // @Schema(description = "<%= tableDescription %>")
-  // private int num;
-  //   @NotBlank
-  // @NotNull
-
   columnList.forEach((columnDbInfo, columnListIndex) => {
     const { column_name, column_comment, camel_case } = columnDbInfo;
     // 마지막이 아닌 경우에만 반영
@@ -220,7 +215,7 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     columnList: columnList,
     saveColumnList: saveColumnList,
     packageName: Config.javaBasePackage,
-    mapperNamespace: Config.isMapperNameSpaceFullPackage ? `${Config.javaBasePackage}.mapper.${entityName}` : entityName,
+    mapperNamespace: Config.isMapperNameSpaceFullPackage ? `${Config.javaBasePackage}.mapper.${entityName}Mapper` : entityName,
     tableName: tableName,
     entityName: entityName,
     selectColumnNames: selectColumnNames,
@@ -245,9 +240,15 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     result[generatorKey] = bindMappingResultString;
     let resultFileName = "";
     if (generatorKey === Constant.GENERATE_TYPE_SQL) {
-      resultFileName = `${entityName}Sql.xml`;
+      if (Config.isMapperNameSpaceFullPackage) {
+        resultFileName = `${entityName}Mapper.xml`;
+      } else {
+        resultFileName = `${entityName}Sql.xml`;
+      }
     } else if (generatorKey === Constant.GENERATE_TYPE_DTO) {
       resultFileName = `${entityName}Dto.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_MYABITS_MAPPER) {
+      resultFileName = `${entityName}Mapper.java`;
     } else if (generatorKey === Constant.GENERATE_TYPE_CONTROLLER) {
       resultFileName = `${entityName}Controller.java`;
     } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_INTERFACE) {

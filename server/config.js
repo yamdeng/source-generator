@@ -1,7 +1,7 @@
 const Constant = require("./constant");
 
 const Config = {
-  javaBasePackage: "com.orbis.gw",
+  javaBasePackage: "com.orbiswork.gw",
   tablePrefixNameList: ["tas_", "to0_", "tm0_"],
   entityExtractStrategy: Constant.ENTITY_EXTRACT_STRATEGY_BASE,
   defaultNowString: "now()",
@@ -10,6 +10,10 @@ const Config = {
     {
       generatorKey: Constant.GENERATE_TYPE_SQL,
       fileName: "sql.ejs",
+    },
+    {
+      generatorKey: Constant.GENERATE_TYPE_MYABITS_MAPPER,
+      fileName: "mybatis-mapper.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_DTO,
@@ -27,10 +31,10 @@ const Config = {
       generatorKey: Constant.GENERATE_TYPE_SERVICE_CLASS,
       fileName: "service-class.ejs",
     },
-    // {
-    //   generatorKey: Constant.GENERATE_TYPE_SERVICE_CLASS_MAPPER,
-    //   fileName: "service-class-mapper.ejs",
-    // },
+    {
+      generatorKey: Constant.GENERATE_TYPE_SERVICE_CLASS_MAPPER,
+      fileName: "service-class-mapper.ejs",
+    },
   ],
   applyXmlSqlIdEntity: false,
   nowDateSqlString: "now()",

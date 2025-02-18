@@ -7,39 +7,43 @@ import java.util.stream.Collectors;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import <%= packageName %>.common.service.AbstractCommonDaoService;
+import <%= packageName %>.mapper.<%= entityName %>Mapper;
 import <%= packageName %>.dto.<%= entityName %>Dto;
 
 @Service
 @Transactional
-public class <%= entityName %>ServiceImpl extends AbstractCommonDaoService implements <%= entityName %>Service {
+public class <%= entityName %>ServiceMapperImpl implements <%= entityName %>Service {
+
+    @Autowired
+    private <%= entityName %>Mapper <%= entityNameFirstLower %>Mapper;
 
     @Override
     public <%= entityName %>Dto select<%= entityName %>(<%= idDefaultJavaType %> id) {
-        return commonDaoSql.selectOne("<%= entityName %>.selectDetail", id);
+        return <%= entityNameFirstLower %>Mapper.selectDetail(id);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto dto) {
-        List<<%= entityName %>Dto> resultList = commonDaoSql.selectList("<%= entityName %>.selectList", dto);
+        List<<%= entityName %>Dto> resultList = <%= entityNameFirstLower %>Mapper.selectList(dto);
         return PageInfo.of(resultList);
     }
 
     @Override
     public void insert<%= entityName %>(<%= entityName %>Dto dto) {
-        commonDaoSql.insert("<%= entityName %>.insert", dto);
+        <%= entityNameFirstLower %>Mapper.insert(dto);
     }
 
     @Override
     public void update<%= entityName %>(<%= entityName %>Dto dto) {
-        commonDaoSql.update("<%= entityName %>.update", dto);
+        <%= entityNameFirstLower %>Mapper.update(dto);
     }
 
     @Override
     public void delete<%= entityName %>(<%= idDefaultJavaType %> id) {
-        commonDaoSql.delete("<%= entityName %>.delete", id);
+        <%= entityNameFirstLower %>Mapper.delete(id);
     }
 }
