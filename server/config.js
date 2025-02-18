@@ -47,6 +47,9 @@ const Config = {
       generatorKey: Constant.GENERATE_TYPE_TEST_MYBATIS_MAPPER,
       fileName: "test-mybatis-mapper.ejs",
     },
+    {
+      generatorKey: Constant.GENERATE_TYPE_POSTMAN,
+    },
   ],
   applyXmlSqlIdEntity: false,
   nowDateSqlString: "now()",

@@ -4,7 +4,7 @@ const _ = require("lodash");
 const ejs = require("ejs");
 const fs = require("fs");
 const AdmZip = require("adm-zip");
-const { tableSelectSql, columnSelectSql } = require("./sql-string");
+const { tableSelectSql, tableSelectSqlEqual, columnSelectSql } = require("./sql-string");
 const Config = require("./config");
 const Constant = require("./constant");
 const pgFormatter = require("pg-formatter");
@@ -128,9 +128,7 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
   let tableDescription = "";
 
   try {
-    const dbResponse1 = await db.raw(tableSelectSql, {
-      keyword: `%${tableName}%`,
-    });
+    const dbResponse1 = await db.raw(tableSelectSqlEqual, [tableName]);
     const dbResponse2 = await db.raw(columnSelectSql, [tableName]);
     columnList = dbResponse2.rows;
     console.log(columnList);
@@ -261,12 +259,20 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
       resultFileName = `${entityName}MapperTest.java`;
     }
 
-    const bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
-    result[generatorKey] = bindMappingResultString;
-    console.log("bindMappingResultString : ", bindMappingResultString);
+    let bindMappingResultString = "";
     if (resultFileName) {
+      bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
       fs.writeFileSync(`./result/${resultFileName}`, bindMappingResultString);
+    } else {
+      // postman인 경우 : ejsParameter 기준으로 json을 만들어서 파일로 생성
+      if (generatorKey === Constant.GENERATE_TYPE_POSTMAN) {
+        bindMappingResultString = getPostmanJsonStringByEjsParameter(ejsParameter);
+        fs.writeFileSync(`./result/${entityName}Postman.json`, bindMappingResultString);
+      }
     }
+
+    console.log("bindMappingResultString : ", bindMappingResultString);
+    result[generatorKey] = bindMappingResultString;
   });
 
   res.json(result);
@@ -277,9 +283,13 @@ function readTemplateFile() {
   const templateFileList = Config.templateFileList;
   templateFileList.forEach((templateFileInfo) => {
     const { generatorKey, fileName } = templateFileInfo;
-    const templateFilePath = path.join(__dirname, `templates/${fileName}`);
-    const templateFileContent = fs.readFileSync(templateFilePath, "utf-8");
-    generatorFileMap[generatorKey] = templateFileContent;
+    if (fileName) {
+      const templateFilePath = path.join(__dirname, `templates/${fileName}`);
+      const templateFileContent = fs.readFileSync(templateFilePath, "utf-8");
+      generatorFileMap[generatorKey] = templateFileContent;
+    } else {
+      generatorFileMap[generatorKey] = "";
+    }
   });
 }
 
@@ -321,4 +331,132 @@ function formatSqlString(ejsRenderAfterSqlString) {
   const formattedSQL = pgFormatter.format(transformedSQL);
   const finalSQL = formattedSQL.replace(/__PLACEHOLDER_\d+__/g, (match) => placeholderMap[match]);
   return finalSQL;
+}
+
+/* postman json 추출 */
+function getPostmanJsonStringByEjsParameter(ejsParameter) {
+  const { tableDescription, columnList, apiRootPath, apiPath } = ejsParameter;
+  const result = {
+    info: {
+      name: `${tableDescription} API`,
+      schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    },
+  };
+
+  const requestList = [];
+  const requestBody = {};
+  columnList.forEach((columnDbInfo, columnListIndex) => {
+    const { camel_case, java_type } = columnDbInfo;
+    requestBody[camel_case] = "";
+  });
+
+  // 상세 : get
+  requestList.push({
+    name: `${tableDescription} 상세 조회`,
+    request: {
+      method: "GET",
+      header: [
+        {
+          key: "Content-Type",
+          value: "application/json",
+        },
+      ],
+      url: {
+        raw: "{{hostname}}" + `${apiRootPath}${apiPath}/id1`,
+        host: ["{{hostname}}"],
+        path: [`${apiRootPath}${apiPath}`, "id1"],
+      },
+    },
+  });
+
+  // 목록 : get
+  requestList.push({
+    name: `${tableDescription} 목록 조회`,
+    request: {
+      method: "GET",
+      header: [
+        {
+          key: "Content-Type",
+          value: "application/json",
+        },
+      ],
+      url: {
+        raw: "{{hostname}}" + `${apiRootPath}${apiPath}`,
+        host: ["{{hostname}}"],
+        path: [`${apiRootPath}${apiPath}`],
+      },
+    },
+  });
+
+  // 추가 : post
+  requestList.push({
+    name: `${tableDescription} 추가`,
+    request: {
+      method: "POST",
+      header: [
+        {
+          key: "Content-Type",
+          value: "application/json",
+        },
+      ],
+      body: {
+        mode: "raw",
+        raw: JSON.stringify(requestBody, null, 2),
+      },
+      url: {
+        raw: "{{hostname}}" + `${apiRootPath}${apiPath}`,
+        host: ["{{hostname}}"],
+        path: [`${apiRootPath}${apiPath}`],
+      },
+    },
+  });
+
+  // 수정 : put
+  requestList.push({
+    name: `${tableDescription} 수정`,
+    request: {
+      method: "PUT",
+      header: [
+        {
+          key: "Content-Type",
+          value: "application/json",
+        },
+      ],
+      body: {
+        mode: "raw",
+        raw: JSON.stringify(requestBody, null, 2),
+      },
+      url: {
+        raw: "{{hostname}}" + `${apiRootPath}${apiPath}/id1`,
+        host: ["{{hostname}}"],
+        path: [`${apiRootPath}${apiPath}`, "id1"],
+      },
+    },
+  });
+
+  // 삭제
+  requestList.push({
+    name: `${tableDescription} 삭제`,
+    request: {
+      method: "DELETE",
+      header: [
+        {
+          key: "Content-Type",
+          value: "application/json",
+        },
+      ],
+      body: {
+        mode: "raw",
+        raw: JSON.stringify({}, null, 2),
+      },
+      url: {
+        raw: "{{hostname}}" + `${apiRootPath}${apiPath}/id1`,
+        host: ["{{hostname}}"],
+        path: [`${apiRootPath}${apiPath}`, "id1"],
+      },
+    },
+  });
+
+  result.item = requestList;
+  return JSON.stringify(result, null, 2);
 }

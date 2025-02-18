@@ -6,9 +6,11 @@
 // `;
 
 const tableSelectSql = `SELECT C.RELNAME as table_name, OBJ_DESCRIPTION(C.OID) as table_comment
-FROM PG_CATALOG.PG_CLASS C INNER JOIN PG_CATALOG.PG_NAMESPACE N ON C.RELNAMESPACE=N.OID 
+FROM PG_CATALOG.PG_CLASS C INNER JOIN PG_CATALOG.PG_NAMESPACE N ON C.RELNAMESPACE=N.OID
 WHERE C.RELKIND = 'r'
 AND RELNAME like :keyword`;
+
+const tableSelectSqlEqual = `SELECT obj_description(?::regclass, 'pg_class') AS table_comment`;
 
 const columnSelectSql = `SELECT ordinal_position
        ,table_name
@@ -55,5 +57,6 @@ ORDER  BY ordinal_position`;
 
 module.exports = {
   tableSelectSql: tableSelectSql,
+  tableSelectSqlEqual: tableSelectSqlEqual,
   columnSelectSql: columnSelectSql,
 };

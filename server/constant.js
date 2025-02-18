@@ -12,6 +12,7 @@ const Constant = {
   GENERATE_TYPE_MYABITS_MAPPER: "mybatis-mapper",
   GENERATE_TYPE_TEST_COMMON_DAO: "test-common-dao",
   GENERATE_TYPE_TEST_MYBATIS_MAPPER: "test-mybatis-mapper",
+  GENERATE_TYPE_POSTMAN: "postman",
 };
 
 module.exports = Constant;
