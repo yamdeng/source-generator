@@ -252,6 +252,10 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
       resultFileName = `${entityName}Controller.java`;
     } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_INTERFACE) {
       resultFileName = `${entityName}Service.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_CLASS) {
+      resultFileName = `${entityName}ServiceImpl.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_CLASS_MAPPER) {
+      resultFileName = `${entityName}ServiceMapperImpl.java`;
     }
 
     console.log("bindMappingResultString : ", bindMappingResultString);

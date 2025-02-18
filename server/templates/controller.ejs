@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
-import com.orbiswork.gw.utils.ResponseUtil;
+import com.orbiswork.gw.common.utils.ResponseUtil;
 import <%= packageName %>.service.<%= entityName %>Service;
 import <%= packageName %>.dto.<%= entityName %>Dto;
 
@@ -36,11 +36,9 @@ public class <%= entityName %>Controller {
 
     @Operation(summary = "<%= tableDescription %> 상세 조회", description = "<%= tableDescription %> 상세 조회 API")
     @GetMapping("<%= apiPath %>/{id}")
-    public ResponseEntity<?> select<%= entityName %>(@PathVariable(value="id", required=true) int id) {
-        
+    public ResponseEntity<?> select<%= entityName %>(@PathVariable(value="id", required=true) <%= idDefaultJavaType %> id) {
         <%= entityName %>Dto result = <%= entityNameFirstLower %>Service.select<%= entityName %>(id);
         return ResponseUtil.createSuccessResponse(result);
-
     }
 
     @Operation(summary = "<%= tableDescription %> 목록 조회", description = "<%= tableDescription %> 목록 조회 API")
@@ -48,7 +46,6 @@ public class <%= entityName %>Controller {
     public ResponseEntity<?> select<%= entityName %>List(
         @RequestParam(value="pageNum", required=false, defaultValue="1") int pageNum
         ,@RequestParam(value="pageSize", required=false, defaultValue="10") int pageSize){
-  
         <%= entityName %>Dto paramDto = new <%= entityName %>Dto();
 
         // Page 조회
@@ -60,7 +57,6 @@ public class <%= entityName %>Controller {
     @Operation(summary = "<%= tableDescription %> 등록", description = "<%= tableDescription %> 등록 API")
     @PostMapping(value = "<%= apiPath %>")
     public ResponseEntity<?> insert<%= entityName %>(@Valid @RequestBody(required=true) <%= entityName %>Dto reqDto){
-
         <%= entityNameFirstLower %>Service.insert<%= entityName %>(reqDto);
         return ResponseUtil.createSuccessResponse();
     }

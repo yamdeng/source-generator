@@ -8,21 +8,29 @@ const Config = {
   basicColumnList: ["reg_date", "reg_user_key", "mod_date", "mod_user_key"],
   templateFileList: [
     {
-      generatorKey: "sql",
+      generatorKey: Constant.GENERATE_TYPE_SQL,
       fileName: "sql.ejs",
     },
     {
-      generatorKey: "dto",
+      generatorKey: Constant.GENERATE_TYPE_DTO,
       fileName: "dto.ejs",
     },
     {
-      generatorKey: "controller",
+      generatorKey: Constant.GENERATE_TYPE_CONTROLLER,
       fileName: "controller.ejs",
     },
     {
-      generatorKey: "service-interface",
+      generatorKey: Constant.GENERATE_TYPE_SERVICE_INTERFACE,
       fileName: "service-interface.ejs",
     },
+    {
+      generatorKey: Constant.GENERATE_TYPE_SERVICE_CLASS,
+      fileName: "service-class.ejs",
+    },
+    // {
+    //   generatorKey: Constant.GENERATE_TYPE_SERVICE_CLASS_MAPPER,
+    //   fileName: "service-class-mapper.ejs",
+    // },
   ],
   applyXmlSqlIdEntity: false,
   nowDateSqlString: "now()",

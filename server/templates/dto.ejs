@@ -1,6 +1,6 @@
 package <%= packageName %>.dto;
 
-import com.orbiswork.gw.dto.CommonDto;
+import com.orbiswork.gw.common.dto.CommonDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 <% if(existNotNullColumn) { %>import jakarta.validation.constraints.NotNull;<% } %>
 <% if(existNotBlankColumn) { %>import jakarta.validation.constraints.NotBlank;<% } %>
