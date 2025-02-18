@@ -8,6 +8,7 @@ const { tableSelectSql, columnSelectSql } = require("./sql-string");
 const Config = require("./config");
 const Constant = require("./constant");
 const pgFormatter = require("pg-formatter");
+const tableEntityMapping = require("./table-mapping");
 
 const testSqlString = `INSERT INTO TO0_CORPORATION
 (A_DOC_KEY, A_DOC_NUM, SITE_KEY, A_DOC_NAME, SEND_TYPE_CODE, DOC_TYPE_CODE, REAL_A_STATUS, SECRET_LEVEL_CODE, OPEN_TYPE, TIME_LIMIT, DEPT_KEY, SPEED_YN, SECURITY_YN, SECURITY_END_DAY, HISTORY_M_YN, PAGE, A_SUMMARY, BEFORE_A_DOC_KEY, BEFORE_R_DOC_KEY, ATTACHED_YN, HISTORY_YN, DISPLAY_YN, RETURN_YN, RECOVERY_YN, COMMENTS_YN, EXECUTE_DATE, DRAFT_DATE, DRAFT_USER_KEY, REG_USER_KEY, MOD_DATE, MOD_USER_KEY, USE_YN, S_DOC_KEY, RECORDS_NUM, A_END_DATE, R_DEPT_YN, STORAGE_KEY, P_REG_NUM, IO_DIV, ADD_COL1, ADD_COL2, ADD_COL3, ADD_COL4, ADD_COL5, ADD_COL6)
@@ -232,6 +233,7 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     dtoMembers: dtoMembers,
     existNotNullColumn: existNotNullColumn,
     existNotBlankColumn: existNotBlankColumn,
+    apiRootParh: Config.apiRootParh,
   };
 
   const generatorFileMapKeys = _.keys(generatorFileMap);
@@ -278,7 +280,17 @@ function applyEjsRender(ejsContent, ejsParameter) {
 
 /* 테이블명을 기준으로 Entity명(기준명) 추출 */
 function getEntityNameByTableName(tableName) {
-  return Config.tableEntityMapping[tableName.toUpperCase()];
+  return tableEntityMapping[tableName.toUpperCase()].entityName;
+}
+
+/* 테이블명을 기준으로 apiPath 추출 */
+function getApiPathNameByTableName(tableName) {
+  const entityName = tableEntityMapping[tableName.toUpperCase()].entityName;
+  const apiPath = tableEntityMapping[tableName.toUpperCase()].apiPath;
+  if (apiPath) {
+    return apiPath;
+  }
+  return _.kebabCase(entityName);
 }
 
 /* sql 문자열 포맷팅 */
