@@ -48,8 +48,16 @@ app.listen(port, () => {
 });
 
 const resultDirectory = path.join(__dirname, "result");
+const resultBackendDirectory = path.join(__dirname, "result" + path.sep + "backend");
+const resultFrontendDirectory = path.join(__dirname, "result" + path.sep + "frontend");
 if (!fs.existsSync(resultDirectory)) {
   fs.mkdirSync(resultDirectory);
+}
+if (!fs.existsSync(resultBackendDirectory)) {
+  fs.mkdirSync(resultBackendDirectory);
+}
+if (!fs.existsSync(resultFrontendDirectory)) {
+  fs.mkdirSync(resultFrontendDirectory);
 }
 
 // Config log print
@@ -112,8 +120,9 @@ app.get("/api/columns/:tableName", async (req, res) => {
 // api/generate/frontend
 
 // generate 문자열 반환 : /api/generate/:tableName
-app.post("/api/generate/backend/:tableName", async (req, res) => {
+app.post("/api/generate/:templateType/:tableName", async (req, res) => {
   const tableName = req.params.tableName;
+  const templateType = req.params.templateType;
   // let checkedColumns = req.body.checkedColumns || [];
   // let checkedMultiColumn = req.body.checkedMultiColumn;
   // let checkedModalUseState = req.body.checkedModalUseState;
@@ -262,12 +271,12 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     let bindMappingResultString = "";
     if (resultFileName) {
       bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
-      fs.writeFileSync(`./result/${resultFileName}`, bindMappingResultString);
+      fs.writeFileSync(`./result/${templateType}/${resultFileName}`, bindMappingResultString);
     } else {
       // postman인 경우 : ejsParameter 기준으로 json을 만들어서 파일로 생성
       if (generatorKey === Constant.GENERATE_TYPE_POSTMAN) {
         bindMappingResultString = getPostmanJsonStringByEjsParameter(ejsParameter);
-        fs.writeFileSync(`./result/${entityName}Postman.json`, bindMappingResultString);
+        fs.writeFileSync(`./result/${templateType}/${entityName}Postman.json`, bindMappingResultString);
       }
     }
 
@@ -282,9 +291,9 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
 function readTemplateFile() {
   const templateFileList = Config.templateFileList;
   templateFileList.forEach((templateFileInfo) => {
-    const { generatorKey, fileName } = templateFileInfo;
+    const { generatorKey, fileName, templateType } = templateFileInfo;
     if (fileName) {
-      const templateFilePath = path.join(__dirname, `templates/${fileName}`);
+      const templateFilePath = path.join(__dirname, `templates/${templateType}/${fileName}`);
       const templateFileContent = fs.readFileSync(templateFilePath, "utf-8");
       generatorFileMap[generatorKey] = templateFileContent;
     } else {

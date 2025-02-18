@@ -9,46 +9,57 @@ const Config = {
   templateFileList: [
     {
       generatorKey: Constant.GENERATE_TYPE_SQL,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
       fileName: "sql.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_MAPPER_SQL,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
       fileName: "sql.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_MYABITS_MAPPER,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
       fileName: "mybatis-mapper.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_DTO,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
       fileName: "dto.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_CONTROLLER,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
       fileName: "controller.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_SERVICE_INTERFACE,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
       fileName: "service-interface.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_SERVICE_CLASS,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
       fileName: "service-class.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_SERVICE_CLASS_MAPPER,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
       fileName: "service-class-mapper.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_TEST_COMMON_DAO,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
       fileName: "test-common-dao.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_TEST_MYBATIS_MAPPER,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
       fileName: "test-mybatis-mapper.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_POSTMAN,
+      templateType: Constant.TEMPLATE_TYPE_BACKEND,
     },
   ],
   applyXmlSqlIdEntity: false,
