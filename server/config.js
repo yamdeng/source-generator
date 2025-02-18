@@ -15,11 +15,16 @@ const Config = {
       generatorKey: "dto",
       fileName: "dto.ejs",
     },
+    {
+      generatorKey: "controller",
+      fileName: "controller.ejs",
+    },
   ],
   applyXmlSqlIdEntity: false,
   nowDateSqlString: "now()",
   isMapperNameSpaceFullPackage: false,
-  apiRootParh: "/api",
+  apiRootPath: "/api",
+  idDefaultJavaType: "String",
 };
 
 module.exports = Config;

@@ -131,3 +131,5 @@ dist
 
 .history/
 **/result
+
+.DS_Store

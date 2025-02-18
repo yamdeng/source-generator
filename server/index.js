@@ -109,10 +109,7 @@ app.get("/api/columns/:tableName", async (req, res) => {
   });
 });
 
-// api/generate/backend/{generateType} { tableName, checkedColumns }
 // api/generate/frontend
-
-// mapperNamespace, packageName, entityName, tableName, columnNames, primaryKeyConditions, nowDateSqlString, selectColumnNames, insertColumns, insertValues, updateColums
 
 // generate 문자열 반환 : /api/generate/:tableName
 app.post("/api/generate/backend/:tableName", async (req, res) => {
@@ -124,6 +121,8 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
   // let checkedSearchFormDetail = req.body.checkedSearchFormDetail;
   const result = {};
   const entityName = getEntityNameByTableName(tableName);
+  const entityNameFirstLower = _.lowerFirst(entityName);
+  const apiPath = getApiPathNameByTableName(tableName);
 
   let columnList = [];
   let tableDescription = "";
@@ -233,7 +232,10 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     dtoMembers: dtoMembers,
     existNotNullColumn: existNotNullColumn,
     existNotBlankColumn: existNotBlankColumn,
-    apiRootParh: Config.apiRootParh,
+    apiRootPath: Config.apiRootPath,
+    apiPath: apiPath,
+    entityNameFirstLower: entityNameFirstLower,
+    idDefaultJavaType: Config.idDefaultJavaType,
   };
 
   const generatorFileMapKeys = _.keys(generatorFileMap);
@@ -246,6 +248,8 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
       resultFileName = `${entityName}Sql.xml`;
     } else if (generatorKey === Constant.GENERATE_TYPE_DTO) {
       resultFileName = `${entityName}Dto.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_CONTROLLER) {
+      resultFileName = `${entityName}Controller.java`;
     }
     console.log("bindMappingResultString : ", bindMappingResultString);
     if (resultFileName) {

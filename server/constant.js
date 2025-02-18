@@ -14,6 +14,7 @@ const Constant = {
   ENTITY_EXTRACT_STRATEGY_MAPPING: "mappingEntity",
   GENERATE_TYPE_SQL: "sql",
   GENERATE_TYPE_DTO: "dto",
+  GENERATE_TYPE_CONTROLLER: "controller",
 };
 
 module.exports = Constant;

@@ -1,0 +1,85 @@
+package <%= packageName %>.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+
+import com.orbiswork.gw.utils.ResponseUtil;
+import <%= packageName %>.service.<%= entityName %>Service;
+import <%= packageName %>.dto.<%= entityName %>Dto;
+
+import java.util.List;
+
+@Tag(name = "<%= tableDescription %>", description = "<%= tableDescription %> API")
+@Slf4j
+@RestController
+@RequestMapping(value = "<%= apiRootPath %>")
+public class <%= entityName %>Controller {
+
+    @Autowired
+    private <%= entityName %>Service <%= entityNameFirstLower %>Service;
+
+    @Operation(summary = "<%= tableDescription %> 상세 조회", description = "<%= tableDescription %> 상세 조회 API")
+    @GetMapping("<%= apiPath %>/{id}")
+    public ResponseEntity<?> select<%= entityName %>(@PathVariable(value="id", required=true) int id) {
+        
+        <%= entityName %>Dto result = <%= entityNameFirstLower %>Service.select<%= entityName %>(id);
+        return ResponseUtil.createSuccessResponse(result);
+
+    }
+
+    @Operation(summary = "<%= tableDescription %> 목록 조회", description = "<%= tableDescription %> 목록 조회 API")
+    @GetMapping("<%= apiPath %>")
+    public ResponseEntity<?> select<%= entityName %>List(
+        @RequestParam(value="pageNum", required=false, defaultValue="1") int pageNum
+        ,@RequestParam(value="pageSize", required=false, defaultValue="10") int pageSize){
+  
+        <%= entityName %>Dto paramDto = new <%= entityName %>Dto();
+
+        // Page 조회
+        PageHelper.startPage(pageNum, pageSize);
+        PageInfo<<%= entityName %>Dto> pageList = <%= entityNameFirstLower %>Service.select<%= entityName %>List(paramDto);
+        return ResponseUtil.createSuccessResponse(pageList);
+    }
+
+    @Operation(summary = "<%= tableDescription %> 등록", description = "<%= tableDescription %> 등록 API")
+    @PostMapping(value = "<%= apiPath %>")
+    public ResponseEntity<?> insert<%= entityName %>(@Valid @RequestBody(required=true) <%= entityName %>Dto reqDto){
+
+        <%= entityNameFirstLower %>Service.insert<%= entityName %>(reqDto);
+        return ResponseUtil.createSuccessResponse();
+    }
+
+    @Operation(summary = "<%= tableDescription %> 수정", description = "<%= tableDescription %> 수정 API")
+    @PutMapping(value = "<%= apiPath %>/{id}")
+    public ResponseEntity<?> update<%= entityName %>(@PathVariable(value="id", required=true) <%= idDefaultJavaType %> id, @Valid @RequestBody(required=true) <%= entityName %>Dto reqDto){
+        
+        <%= entityNameFirstLower %>Service.update<%= entityName %>(reqDto);
+        return ResponseUtil.createSuccessResponse();
+    }
+
+    @Operation(summary = "<%= tableDescription %> 삭제", description = "<%= tableDescription %> 삭제 API")
+    @DeleteMapping(value = "<%= apiPath %>/{id}")
+    public ResponseEntity<?> delete<%= entityName %>(@PathVariable(value="id", required=true) <%= idDefaultJavaType %> id){
+        <%= entityNameFirstLower %>Service.delete<%= entityName %>(id);
+        return ResponseUtil.createSuccessResponse();
+    }
+
+}
+
+

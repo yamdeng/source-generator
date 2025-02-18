@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- mapperNamespace, packageName, entityName, tableName, columnNames, primaryKeyConditions, nowDateSqlString, selectColumnNames, insertColumns, insertValues, updateColums -->
 <mapper namespace="<%= mapperNamespace %>">
 
   <!-- <%= tableName %> 목록 조회 -->
@@ -34,7 +33,7 @@
   </update>
 
   <!-- <%= tableName %> delete -->
-  <delete id="deleteById" parameterType="string">
+  <delete id="delete" parameterType="string">
     DELETE
       FROM <%= tableName %>
      WHERE 1=1<%= primaryKeyConditions %>
