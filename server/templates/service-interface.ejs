@@ -1,0 +1,20 @@
+package <%= packageName %>.service;
+
+import com.github.pagehelper.PageInfo;
+import java.util.List;
+
+import <%= packageName %>.dto.<%= entityName %>Dto;
+
+public interface <%= entityName %>Service {
+
+    <%= entityName %>Dto select<%= entityName %>(<%= idDefaultJavaType %> id);
+
+    PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto paramDto);
+
+    void insert<%= entityName %>(<%= entityName %>Dto dto);
+
+    void update<%= entityName %>(<%= entityName %>Dto dto);
+
+    void delete<%= entityName %>(<%= idDefaultJavaType %> id);
+    
+}

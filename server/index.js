@@ -250,7 +250,10 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
       resultFileName = `${entityName}Dto.java`;
     } else if (generatorKey === Constant.GENERATE_TYPE_CONTROLLER) {
       resultFileName = `${entityName}Controller.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_INTERFACE) {
+      resultFileName = `${entityName}Service.java`;
     }
+
     console.log("bindMappingResultString : ", bindMappingResultString);
     if (resultFileName) {
       fs.writeFileSync(`./result/${resultFileName}`, bindMappingResultString);

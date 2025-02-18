@@ -19,6 +19,10 @@ const Config = {
       generatorKey: "controller",
       fileName: "controller.ejs",
     },
+    {
+      generatorKey: "service-interface",
+      fileName: "service-interface.ejs",
+    },
   ],
   applyXmlSqlIdEntity: false,
   nowDateSqlString: "now()",
