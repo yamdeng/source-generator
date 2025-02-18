@@ -3,8 +3,11 @@ const path = require("path");
 const _ = require("lodash");
 const ejs = require("ejs");
 const pgFormatter = require("pg-formatter");
+const { tableSelectSqlEqual, columnSelectSql } = require("./sql-string");
 const Config = require("./config");
+const Constant = require("./constant");
 const tableEntityMapping = require("./table-mapping");
+const db = require("./db");
 
 /* 서버 구동시 generatorFileMap 변수에 generatorKey, fileName 반영 */
 function readTemplateFile(generatorFileMap) {
@@ -189,6 +192,194 @@ function getPostmanJsonStringByEjsParameter(ejsParameter) {
   return JSON.stringify(result, null, 2);
 }
 
+// 파일 압축
+async function createZipArchive(entityName, fileNameList) {
+  let zipFileName = `./result/${entityName}-all.zip`;
+  try {
+    const zip = new AdmZip();
+    fileNameList.forEach((fileName) => {
+      zip.addLocalFile(fileName);
+    });
+    zip.writeZip(zipFileName);
+    console.log(`Created ${zipFileName} successfully`);
+  } catch (e) {
+    console.log(`Something went wrong. ${e}`);
+  }
+  return zipFileName;
+}
+
+async function getEjsParameter(tableName) {
+  const entityName = getEntityNameByTableName(tableName);
+  const entityNameFirstLower = _.lowerFirst(entityName);
+  const apiPath = getApiPathNameByTableName(tableName);
+
+  let columnList = [];
+  let tableDescription = "";
+
+  try {
+    const dbResponse1 = await db.raw(tableSelectSqlEqual, [tableName]);
+    const dbResponse2 = await db.raw(columnSelectSql, [tableName]);
+    columnList = dbResponse2.rows;
+    console.log(columnList);
+    tableDescription = dbResponse1.rows[0].table_comment;
+    console.log("tableDescription : ", tableDescription);
+  } catch (e) {
+    console.log(e);
+  }
+
+  let selectColumnNames = "";
+  let pkColumnList = columnList.filter((columnInfo) => columnInfo.is_primary_key === "Y");
+  let saveColumnList = columnList.filter((columnInfo) => {
+    const { column_name } = columnInfo;
+    if (Config.basicColumnList.find((basicColumnName) => basicColumnName === column_name)) {
+      return false;
+    }
+    return true;
+  });
+
+  let primaryKeyConditions = "";
+  if (pkColumnList.length !== 0) {
+    pkColumnList.forEach((pkColumnInfo) => {
+      const { column_name } = pkColumnInfo;
+      primaryKeyConditions = primaryKeyConditions + ` AND ${column_name} = #{${_.camelCase(column_name)}}`;
+    });
+  }
+
+  let insertColumns = "";
+  let insertValues = "";
+  let updateColums = "";
+  let dtoMembers = "";
+
+  columnList.forEach((columnDbInfo, columnListIndex) => {
+    const { column_name, column_comment, camel_case } = columnDbInfo;
+    // 마지막이 아닌 경우에만 반영
+    if (columnListIndex !== columnList.length - 1) {
+      selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name}, /* ${column_comment} */ \n`;
+      // selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} as ${camel_case}, /* ${column_comment} */ \n`;
+    } else {
+      selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} /* ${column_comment} */`;
+      // selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} as ${camel_case} /* ${column_comment} */`;
+    }
+  });
+
+  let existNotNullColumn = false;
+  let existNotBlankColumn = false;
+
+  saveColumnList.forEach((columnDbInfo, columnListIndex) => {
+    const { column_name, java_type, column_comment, camel_case, is_nullable } = columnDbInfo;
+    let notNullAnnotationApply = false;
+    let notBlankAnnotationApply = false;
+    // 마지막이 아닌 경우에만 반영
+    if (columnListIndex !== saveColumnList.length - 1) {
+      insertColumns = insertColumns + column_name + ", ";
+      insertValues = insertValues + `#{${camel_case}}, `;
+      updateColums = updateColums + `${column_name} = #{${camel_case}}, `;
+    } else {
+      insertColumns = insertColumns + column_name;
+      insertValues = insertValues + `#{${camel_case}}`;
+      updateColums = updateColums + `${column_name} = #{${camel_case}}`;
+    }
+    if (is_nullable) {
+      if (java_type === "String") {
+        existNotBlankColumn = true;
+        notBlankAnnotationApply = true;
+      } else {
+        existNotNullColumn = true;
+        notNullAnnotationApply = true;
+      }
+    }
+    if (notNullAnnotationApply) {
+      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotNull\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+    } else if (notBlankAnnotationApply) {
+      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotBlank\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+    } else {
+      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+    }
+  });
+
+  const ejsParameter = {
+    tableDescription: tableDescription,
+    columnList: columnList,
+    saveColumnList: saveColumnList,
+    packageName: Config.javaBasePackage,
+    mapperNamespace: entityName,
+    tableName: tableName,
+    entityName: entityName,
+    selectColumnNames: selectColumnNames,
+    primaryKeyConditions: primaryKeyConditions,
+    insertColumns: insertColumns,
+    insertValues: insertValues,
+    updateColums: updateColums,
+    nowDateSqlString: Config.nowDateSqlString,
+    dtoMembers: dtoMembers,
+    existNotNullColumn: existNotNullColumn,
+    existNotBlankColumn: existNotBlankColumn,
+    apiRootPath: Config.apiRootPath,
+    apiPath: apiPath,
+    entityNameFirstLower: entityNameFirstLower,
+    idDefaultJavaType: Config.idDefaultJavaType,
+  };
+
+  return ejsParameter;
+}
+
+/* generator 결과값을 Map 유형으로 반환 */
+function getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateType) {
+  const result = {};
+  const entityName = getEntityNameByTableName(tableName);
+  const generatorFileMapKeys = _.keys(generatorFileMap);
+  generatorFileMapKeys.forEach((generatorKey) => {
+    const templateContentString = generatorFileMap[generatorKey];
+    ejsParameter.mapperNamespace = entityName;
+    let resultFileName = "";
+    if (generatorKey === Constant.GENERATE_TYPE_SQL) {
+      resultFileName = `${entityName}Sql.xml`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_MAPPER_SQL) {
+      ejsParameter.mapperNamespace = `${Config.javaBasePackage}.mapper.${entityName}Mapper`;
+      resultFileName = `${entityName}Mapper.xml`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_DTO) {
+      resultFileName = `${entityName}Dto.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_MYABITS_MAPPER) {
+      resultFileName = `${entityName}Mapper.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_CONTROLLER) {
+      resultFileName = `${entityName}Controller.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_INTERFACE) {
+      resultFileName = `${entityName}Service.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_CLASS) {
+      resultFileName = `${entityName}ServiceImpl.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_CLASS_MAPPER) {
+      resultFileName = `${entityName}ServiceMapperImpl.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_TEST_COMMON_DAO) {
+      resultFileName = `${entityName}DaoTest.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_TEST_MYBATIS_MAPPER) {
+      resultFileName = `${entityName}MapperTest.java`;
+    } else if (generatorKey === Constant.GENERATE_TYPE_POSTMAN) {
+      resultFileName = `${entityName}Postman.json`;
+    }
+
+    let bindMappingResultString = "";
+    if (resultFileName) {
+      console.log("ejsParameter : ", ejsParameter);
+      bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
+    } else {
+      // postman인 경우 : ejsParameter 기준으로 json을 만들어서 파일로 생성
+      if (generatorKey === Constant.GENERATE_TYPE_POSTMAN) {
+        bindMappingResultString = getPostmanJsonStringByEjsParameter(ejsParameter);
+      }
+    }
+
+    console.log("bindMappingResultString : ", bindMappingResultString);
+
+    result[generatorKey] = {
+      resultFileName: resultFileName,
+      resultFileFullPath: `./result/${templateType}/${resultFileName}`,
+      finalResultString: bindMappingResultString,
+    };
+  });
+
+  return result;
+}
+
 // ✅ 여러 개의 변수를 객체로 내보내기
 module.exports = {
   readTemplateFile,
@@ -198,4 +389,7 @@ module.exports = {
   getApiPathNameByTableName,
   formatSqlString,
   getPostmanJsonStringByEjsParameter,
+  createZipArchive,
+  getEjsParameter,
+  getGeneratorResult,
 };

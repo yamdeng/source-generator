@@ -2,31 +2,19 @@ require("dotenv").config();
 const path = require("path");
 const _ = require("lodash");
 const fs = require("fs");
+const { SERVER_PORT } = process.env;
 // const AdmZip = require("adm-zip");
-const { tableSelectSql, tableSelectSqlEqual, columnSelectSql } = require("./sql-string");
+const { tableSelectSql, columnSelectSql } = require("./sql-string");
 const Config = require("./config");
-const Constant = require("./constant");
 const { 
-  readTemplateFile, convertTemplateSqlString, getEntityNameByTableName, getApiPathNameByTableName, formatSqlString, getPostmanJsonStringByEjsParameter
+  readTemplateFile, formatSqlString, getEjsParameter, getGeneratorResult
 } = require("./util");
+const db = require("./db");
 
 const testSqlString = `INSERT INTO TO0_CORPORATION
 (A_DOC_KEY, A_DOC_NUM, SITE_KEY, A_DOC_NAME, SEND_TYPE_CODE, DOC_TYPE_CODE, REAL_A_STATUS, SECRET_LEVEL_CODE, OPEN_TYPE, TIME_LIMIT, DEPT_KEY, SPEED_YN, SECURITY_YN, SECURITY_END_DAY, HISTORY_M_YN, PAGE, A_SUMMARY, BEFORE_A_DOC_KEY, BEFORE_R_DOC_KEY, ATTACHED_YN, HISTORY_YN, DISPLAY_YN, RETURN_YN, RECOVERY_YN, COMMENTS_YN, EXECUTE_DATE, DRAFT_DATE, DRAFT_USER_KEY, REG_USER_KEY, MOD_DATE, MOD_USER_KEY, USE_YN, S_DOC_KEY, RECORDS_NUM, A_END_DATE, R_DEPT_YN, STORAGE_KEY, P_REG_NUM, IO_DIV, ADD_COL1, ADD_COL2, ADD_COL3, ADD_COL4, ADD_COL5, ADD_COL6)
 VALUES(#{aDocKey}, #{aDocNum}, #{siteKey}, #{aDocName}, #{sendTypeCode}, #{docTypeCode}, #{realAStatus}, #{secretLevelCode}, #{openType}, #{timeLimit}, #{deptKey}, #{speedYn}, #{securityYn}, #{securityEndDay}, #{historyMYn}, #{page}, #{aSummary}, #{beforeADocKey}, #{beforeRDocKey}, #{attachedYn}, #{historyYn}, #{displayYn}, #{returnYn}, #{recoveryYn}, #{commentsYn}, #{executeDate}, #{draftDate}, #{draftUserKey}, #{regUserKey}, #{modDate}, #{modUserKey}, #{useYn}, #{sDocKey}, #{recordsNum}, #{aEndDate}, #{rDeptYn}, #{storageKey}, #{pRegNum}, #{ioDiv}, #{addCol1}, #{addCol2}, #{addCol3}, #{addCol4}, #{addCol5}, #{addCol6})`;
 
-// DB 정보
-const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_DATABASE, SERVER_PORT } = process.env;
-const db = require("knex")({
-  client: "pg",
-  version: "7.2",
-  connection: {
-    host: DB_HOST,
-    port: DB_PORT,
-    user: DB_USER,
-    password: DB_PASSWORD,
-    database: DB_DATABASE,
-  },
-});
 
 // ======= server init start =======
 
@@ -128,161 +116,9 @@ app.post("/api/generate/:templateType/:tableName", async (req, res) => {
   // let checkedModalUseState = req.body.checkedModalUseState;
   // let checkedInnerFormStore = req.body.checkedInnerFormStore;
   // let checkedSearchFormDetail = req.body.checkedSearchFormDetail;
-  const result = {};
-  const entityName = getEntityNameByTableName(tableName);
-  const entityNameFirstLower = _.lowerFirst(entityName);
-  const apiPath = getApiPathNameByTableName(tableName);
-
-  let columnList = [];
-  let tableDescription = "";
-
-  try {
-    const dbResponse1 = await db.raw(tableSelectSqlEqual, [tableName]);
-    const dbResponse2 = await db.raw(columnSelectSql, [tableName]);
-    columnList = dbResponse2.rows;
-    console.log(columnList);
-    tableDescription = dbResponse1.rows[0].table_comment;
-    console.log("tableDescription : ", tableDescription);
-  } catch (e) {
-    console.log(e);
-  }
-
-  let selectColumnNames = "";
-  let pkColumnList = columnList.filter((columnInfo) => columnInfo.is_primary_key === "Y");
-  let saveColumnList = columnList.filter((columnInfo) => {
-    const { column_name } = columnInfo;
-    if (Config.basicColumnList.find((basicColumnName) => basicColumnName === column_name)) {
-      return false;
-    }
-    return true;
-  });
-
-  let primaryKeyConditions = "";
-  if (pkColumnList.length !== 0) {
-    pkColumnList.forEach((pkColumnInfo) => {
-      const { column_name } = pkColumnInfo;
-      primaryKeyConditions = primaryKeyConditions + ` AND ${column_name} = #{${_.camelCase(column_name)}}`;
-    });
-  }
-
-  let insertColumns = "";
-  let insertValues = "";
-  let updateColums = "";
-  let dtoMembers = "";
-
-  columnList.forEach((columnDbInfo, columnListIndex) => {
-    const { column_name, column_comment, camel_case } = columnDbInfo;
-    // 마지막이 아닌 경우에만 반영
-    if (columnListIndex !== columnList.length - 1) {
-      selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name}, /* ${column_comment} */ \n`;
-      // selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} as ${camel_case}, /* ${column_comment} */ \n`;
-    } else {
-      selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} /* ${column_comment} */`;
-      // selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} as ${camel_case} /* ${column_comment} */`;
-    }
-  });
-
-  let existNotNullColumn = false;
-  let existNotBlankColumn = false;
-
-  saveColumnList.forEach((columnDbInfo, columnListIndex) => {
-    const { column_name, java_type, column_comment, camel_case, is_nullable } = columnDbInfo;
-    let notNullAnnotationApply = false;
-    let notBlankAnnotationApply = false;
-    // 마지막이 아닌 경우에만 반영
-    if (columnListIndex !== saveColumnList.length - 1) {
-      insertColumns = insertColumns + column_name + ", ";
-      insertValues = insertValues + `#{${camel_case}}, `;
-      updateColums = updateColums + `${column_name} = #{${camel_case}}, `;
-    } else {
-      insertColumns = insertColumns + column_name;
-      insertValues = insertValues + `#{${camel_case}}`;
-      updateColums = updateColums + `${column_name} = #{${camel_case}}`;
-    }
-    if (is_nullable) {
-      if (java_type === "String") {
-        existNotBlankColumn = true;
-        notBlankAnnotationApply = true;
-      } else {
-        existNotNullColumn = true;
-        notNullAnnotationApply = true;
-      }
-    }
-    if (notNullAnnotationApply) {
-      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotNull\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
-    } else if (notBlankAnnotationApply) {
-      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotBlank\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
-    } else {
-      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
-    }
-  });
-
-  const ejsParameter = {
-    tableDescription: tableDescription,
-    columnList: columnList,
-    saveColumnList: saveColumnList,
-    packageName: Config.javaBasePackage,
-    mapperNamespace: entityName,
-    tableName: tableName,
-    entityName: entityName,
-    selectColumnNames: selectColumnNames,
-    primaryKeyConditions: primaryKeyConditions,
-    insertColumns: insertColumns,
-    insertValues: insertValues,
-    updateColums: updateColums,
-    nowDateSqlString: Config.nowDateSqlString,
-    dtoMembers: dtoMembers,
-    existNotNullColumn: existNotNullColumn,
-    existNotBlankColumn: existNotBlankColumn,
-    apiRootPath: Config.apiRootPath,
-    apiPath: apiPath,
-    entityNameFirstLower: entityNameFirstLower,
-    idDefaultJavaType: Config.idDefaultJavaType,
-  };
-
-  const generatorFileMapKeys = _.keys(generatorFileMap);
-  generatorFileMapKeys.forEach((generatorKey) => {
-    const templateContentString = generatorFileMap[generatorKey];
-    ejsParameter.mapperNamespace = entityName;
-    let resultFileName = "";
-    if (generatorKey === Constant.GENERATE_TYPE_SQL) {
-      resultFileName = `${entityName}Sql.xml`;
-    } else if (generatorKey === Constant.GENERATE_TYPE_MAPPER_SQL) {
-      ejsParameter.mapperNamespace = `${Config.javaBasePackage}.mapper.${entityName}Mapper`;
-      resultFileName = `${entityName}Mapper.xml`;
-    } else if (generatorKey === Constant.GENERATE_TYPE_DTO) {
-      resultFileName = `${entityName}Dto.java`;
-    } else if (generatorKey === Constant.GENERATE_TYPE_MYABITS_MAPPER) {
-      resultFileName = `${entityName}Mapper.java`;
-    } else if (generatorKey === Constant.GENERATE_TYPE_CONTROLLER) {
-      resultFileName = `${entityName}Controller.java`;
-    } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_INTERFACE) {
-      resultFileName = `${entityName}Service.java`;
-    } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_CLASS) {
-      resultFileName = `${entityName}ServiceImpl.java`;
-    } else if (generatorKey === Constant.GENERATE_TYPE_SERVICE_CLASS_MAPPER) {
-      resultFileName = `${entityName}ServiceMapperImpl.java`;
-    } else if (generatorKey === Constant.GENERATE_TYPE_TEST_COMMON_DAO) {
-      resultFileName = `${entityName}DaoTest.java`;
-    } else if (generatorKey === Constant.GENERATE_TYPE_TEST_MYBATIS_MAPPER) {
-      resultFileName = `${entityName}MapperTest.java`;
-    }
-
-    let bindMappingResultString = "";
-    if (resultFileName) {
-      bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
-      fs.writeFileSync(`./result/${templateType}/${resultFileName}`, bindMappingResultString);
-    } else {
-      // postman인 경우 : ejsParameter 기준으로 json을 만들어서 파일로 생성
-      if (generatorKey === Constant.GENERATE_TYPE_POSTMAN) {
-        bindMappingResultString = getPostmanJsonStringByEjsParameter(ejsParameter);
-        fs.writeFileSync(`./result/${templateType}/${entityName}Postman.json`, bindMappingResultString);
-      }
-    }
-
-    console.log("bindMappingResultString : ", bindMappingResultString);
-    result[generatorKey] = bindMappingResultString;
-  });
+  const ejsParameter = await getEjsParameter(tableName);
+  const result = getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateType);
+  delete result.resultFileName;
 
   res.json(result);
 });
