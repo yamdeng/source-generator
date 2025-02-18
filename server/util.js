@@ -1,4 +1,5 @@
 const fs = require("fs");
+const AdmZip = require("adm-zip");
 const path = require("path");
 const _ = require("lodash");
 const ejs = require("ejs");
@@ -192,14 +193,35 @@ function getPostmanJsonStringByEjsParameter(ejsParameter) {
   return JSON.stringify(result, null, 2);
 }
 
+/* file 하나만 생성 */
+async function createFiledownloadByGeneratorDetailInfo(generatorDetailInfo) {
+  try {
+    const { resultFileFullPath, finalResultString } = generatorDetailInfo;
+    fs.writeFileSync(resultFileFullPath, finalResultString);
+  } catch (e) {
+    console.log(`Something went wrong. ${e}`);
+  }
+}
+
 // 파일 압축
-async function createZipArchive(entityName, fileNameList) {
+async function createZipArchive(tableName, generatorResult) {
+  const entityName = getEntityNameByTableName(tableName);
   let zipFileName = `./result/${entityName}-all.zip`;
+  const generatorResultKeys = _.keys(generatorResult);
   try {
     const zip = new AdmZip();
-    fileNameList.forEach((fileName) => {
+    const childFileFullPathList = [];
+
+    generatorResultKeys.forEach((key) => {
+      const generatorDetailInfo = generatorResult[key];
+      const { resultFileFullPath, finalResultString } = generatorDetailInfo;
+      fs.writeFileSync(resultFileFullPath, finalResultString);
+      childFileFullPathList.push(resultFileFullPath);
+    });
+    childFileFullPathList.forEach((fileName) => {
       zip.addLocalFile(fileName);
     });
+
     zip.writeZip(zipFileName);
     console.log(`Created ${zipFileName} successfully`);
   } catch (e) {
@@ -208,6 +230,7 @@ async function createZipArchive(entityName, fileNameList) {
   return zipFileName;
 }
 
+/* ejs 템플릿 파일에 바인딩할 종합 파라미터 추출 */
 async function getEjsParameter(tableName) {
   const entityName = getEntityNameByTableName(tableName);
   const entityNameFirstLower = _.lowerFirst(entityName);
@@ -358,14 +381,12 @@ function getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateT
     }
 
     let bindMappingResultString = "";
-    if (resultFileName) {
-      console.log("ejsParameter : ", ejsParameter);
-      bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
+
+    // postman인 경우 : ejsParameter 기준으로 json을 만들어서 파일로 생성
+    if (generatorKey === Constant.GENERATE_TYPE_POSTMAN) {
+      bindMappingResultString = getPostmanJsonStringByEjsParameter(ejsParameter);
     } else {
-      // postman인 경우 : ejsParameter 기준으로 json을 만들어서 파일로 생성
-      if (generatorKey === Constant.GENERATE_TYPE_POSTMAN) {
-        bindMappingResultString = getPostmanJsonStringByEjsParameter(ejsParameter);
-      }
+      bindMappingResultString = convertTemplateSqlString(templateContentString, ejsParameter);
     }
 
     console.log("bindMappingResultString : ", bindMappingResultString);
@@ -392,4 +413,5 @@ module.exports = {
   createZipArchive,
   getEjsParameter,
   getGeneratorResult,
+  createFiledownloadByGeneratorDetailInfo,
 };

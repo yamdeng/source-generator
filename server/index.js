@@ -3,11 +3,10 @@ const path = require("path");
 const _ = require("lodash");
 const fs = require("fs");
 const { SERVER_PORT } = process.env;
-// const AdmZip = require("adm-zip");
 const { tableSelectSql, columnSelectSql } = require("./sql-string");
 const Config = require("./config");
 const { 
-  readTemplateFile, formatSqlString, getEjsParameter, getGeneratorResult
+  readTemplateFile, formatSqlString, getEjsParameter, getGeneratorResult, createZipArchive, createFiledownloadByGeneratorDetailInfo
 } = require("./util");
 const db = require("./db");
 
@@ -105,8 +104,6 @@ app.get("/api/columns/:tableName", async (req, res) => {
   });
 });
 
-// api/generate/frontend
-
 // generate 문자열 반환 : /api/generate/:tableName
 app.post("/api/generate/:templateType/:tableName", async (req, res) => {
   const tableName = req.params.tableName;
@@ -117,9 +114,35 @@ app.post("/api/generate/:templateType/:tableName", async (req, res) => {
   // let checkedInnerFormStore = req.body.checkedInnerFormStore;
   // let checkedSearchFormDetail = req.body.checkedSearchFormDetail;
   const ejsParameter = await getEjsParameter(tableName);
-  const result = getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateType);
-  delete result.resultFileName;
+  const generatorResult = getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateType);
 
-  res.json(result);
+  res.json(generatorResult);
+});
+
+// generate 결과물 압축 파일로 반환 : generatorKey 파라미터 존재시 개별 다운로드
+app.get("/api/generate/:templateType/:tableName/fileDownload", async (req, res) => {
+  const tableName = req.params.tableName;
+  const templateType = req.params.templateType;
+  const generatorKey = req.query.generatorKey;
+  // let checkedColumns = req.body.checkedColumns || [];
+  // let checkedMultiColumn = req.body.checkedMultiColumn;
+  // let checkedModalUseState = req.body.checkedModalUseState;
+  // let checkedInnerFormStore = req.body.checkedInnerFormStore;
+  // let checkedSearchFormDetail = req.body.checkedSearchFormDetail;
+  const ejsParameter = await getEjsParameter(tableName);
+  const generatorResult = getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateType);
+
+  let downloadFileName = '';
+  if(generatorKey) {
+    const generatorDetailInfo = generatorResult[generatorKey];
+    const { resultFileFullPath } = generatorDetailInfo;
+    createFiledownloadByGeneratorDetailInfo(generatorDetailInfo);
+    downloadFileName = resultFileFullPath;
+  } else {
+    // generatorKey 파라미터가 존재하지 않으면 전체 다운로드
+    downloadFileName = await createZipArchive(tableName, generatorResult);
+  }
+
+  res.download(downloadFileName);
 });
 
