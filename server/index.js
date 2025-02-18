@@ -243,7 +243,7 @@ app.post("/api/generate/backend/:tableName", async (req, res) => {
     if (generatorKey === Constant.GENERATE_TYPE_SQL) {
       resultFileName = `${entityName}Sql.xml`;
     } else if (generatorKey === Constant.GENERATE_TYPE_DTO) {
-      resultFileName = `${entityName}DTO.java`;
+      resultFileName = `${entityName}Dto.java`;
     }
     console.log("bindMappingResultString : ", bindMappingResultString);
     if (resultFileName) {

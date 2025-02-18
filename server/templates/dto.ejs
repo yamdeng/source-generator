@@ -7,11 +7,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
+@SuperBuilder
 @Schema(description = "<%= tableDescription %>")
-public class <%= entityName %>to extends CommonDto {
+public class <%= entityName %>Dto extends CommonDto {
+    
 <%- dtoMembers %>
 }
