@@ -232,4 +232,16 @@ SELECT Obj_description('to0_rank_main' :: regclass, 'pg_class') AS table_comment
       AND tc.table_schema = kcu.table_schema
     WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name = 'tas_a_doc';
     
-   
+-- table column comment
+select 'COMMENT ON COLUMN elsn.' || table_name || '.' || column_name || ' IS ' || E' \'' || COALESCE(column_comment, 'No Comment') || E'\''
+from 
+(
+SELECT table_name
+       ,column_name
+       ,(SELECT pg_catalog.Col_description(c.oid, cols.ordinal_position :: INT)
+         FROM   pg_catalog.pg_class c
+         WHERE  c.oid = (SELECT cols.table_name :: regclass :: oid)
+                AND c.relname = cols.table_name)                                   AS column_comment
+FROM   information_schema.columns cols
+WHERE  table_name = Lower('to0_corporation')
+ORDER  BY ordinal_position);
