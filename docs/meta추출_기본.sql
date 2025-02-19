@@ -40,7 +40,7 @@ SELECT ordinal_position
           WHEN cols.data_type IN( 'character', 'character varying' ) THEN 'String'
           WHEN cols.data_type IN( 'date' ) THEN 'LocalDate'
           WHEN cols.data_type IN( 'timestamp without time zone', 'time without time zone', 'timestamp' ) THEN 'LocalDateTime'
-          WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale = 0 or cols.numeric_scale is null) THEN 'Integer'
+          WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale = 0 or cols.numeric_scale is null) THEN 'Long'
           WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale != 0 or cols.numeric_scale is not null) THEN 'BigDecimal'
           WHEN cols.data_type IN( 'real' ) THEN 'Float'
           WHEN cols.data_type IN( 'double precision' ) THEN 'Double'
@@ -81,7 +81,7 @@ SELECT cols.table_name                                                          
           WHEN cols.data_type IN( 'character', 'character varying' ) THEN 'String'
           WHEN cols.data_type IN( 'date' ) THEN 'LocalDate'
           WHEN cols.data_type IN( 'timestamp without time zone', 'time without time zone', 'timestamp' ) THEN 'LocalDateTime'
-          WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale = 0 or cols.numeric_scale is null) THEN 'Integer'
+          WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale = 0 or cols.numeric_scale is null) THEN 'Long'
           WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale != 0 or cols.numeric_scale is not null) THEN 'BigDecimal'
           WHEN cols.data_type IN( 'real' ) THEN 'Float'
           WHEN cols.data_type IN( 'double precision' ) THEN 'Double'
@@ -180,7 +180,7 @@ SELECT
           WHEN cols.data_type IN( 'character', 'character varying' ) THEN 'String'
           WHEN cols.data_type IN( 'date' ) THEN 'LocalDate'
           WHEN cols.data_type IN( 'timestamp without time zone', 'time without time zone', 'timestamp' ) THEN 'LocalDateTime'
-          WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale = 0 or cols.numeric_scale is null) THEN 'Integer'
+          WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale = 0 or cols.numeric_scale is null) THEN 'Long'
           WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale != 0 or cols.numeric_scale is not null) THEN 'BigDecimal'
           WHEN cols.data_type IN( 'real' ) THEN 'Float'
           WHEN cols.data_type IN( 'double precision' ) THEN 'Double'
@@ -231,9 +231,14 @@ SELECT Obj_description('to0_rank_main' :: regclass, 'pg_class') AS table_comment
       ON tc.constraint_name = kcu.constraint_name
       AND tc.table_schema = kcu.table_schema
     WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name = 'tas_a_doc';
-    
--- table column comment
-select 'COMMENT ON COLUMN elsn.' || table_name || '.' || column_name || ' IS ' || E' \'' || COALESCE(column_comment, 'No Comment') || E'\''
+
+
+
+-- table comment ddl
+SELECT 'COMMENT ON TABLE ' || 'elsn.to0_corporation IS' || E' \'' || COALESCE(Obj_description('to0_corporation' :: regclass, 'pg_class'), 'No Comment') || E'\'' || ';';
+
+-- column comment ddl
+select 'COMMENT ON COLUMN elsn.' || table_name || '.' || column_name || ' IS' || E' \'' || COALESCE(column_comment, 'No Comment') || E'\'' || ';'
 from 
 (
 SELECT table_name
