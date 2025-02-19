@@ -145,8 +145,6 @@ app.get("/api/generate/:templateType/:tableName/fileCreate", async (req, res) =>
   const generatorKey = req.query.generatorKey;
   const ejsParameter = await getEjsParameter(tableName);
   const generatorResult = getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateType);
-
-  let downloadFileName = "";
   if (generatorKey) {
     const generatorDetailInfo = generatorResult[generatorKey];
     createFiledownloadByGeneratorDetailInfo(generatorDetailInfo);
