@@ -203,7 +203,23 @@ async function createFiledownloadByGeneratorDetailInfo(generatorDetailInfo) {
   }
 }
 
-// 파일 압축
+/* 파일 생성 */
+async function createAllFile(tableName, generatorResult) {
+  const entityName = getEntityNameByTableName(tableName);
+  const generatorResultKeys = _.keys(generatorResult);
+  try {
+    generatorResultKeys.forEach((key) => {
+      const generatorDetailInfo = generatorResult[key];
+      const { resultFileFullPath, finalResultString } = generatorDetailInfo;
+      fs.writeFileSync(resultFileFullPath, finalResultString);
+    });
+    console.log(`Created all file successfully`);
+  } catch (e) {
+    console.log(`createAllFile error. ${e}`);
+  }
+}
+
+/* 파일 압축 */
 async function createZipArchive(tableName, generatorResult) {
   const entityName = getEntityNameByTableName(tableName);
   let zipFileName = `./result/${entityName}-all.zip`;
@@ -225,7 +241,7 @@ async function createZipArchive(tableName, generatorResult) {
     zip.writeZip(zipFileName);
     console.log(`Created ${zipFileName} successfully`);
   } catch (e) {
-    console.log(`Something went wrong. ${e}`);
+    console.log(`createZipArchive error. ${e}`);
   }
   return zipFileName;
 }
@@ -410,6 +426,7 @@ module.exports = {
   getApiPathNameByTableName,
   formatSqlString,
   getPostmanJsonStringByEjsParameter,
+  createAllFile,
   createZipArchive,
   getEjsParameter,
   getGeneratorResult,
