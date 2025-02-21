@@ -35,7 +35,9 @@ public class <%= entityName %>Controller {
     @Operation(summary = "<%= tableDescription %> 상세 조회", description = "<%= tableDescription %> 상세 조회 API")
     @GetMapping("<%= apiPath %>/{id}")
     public ResponseEntity<?> select<%= entityName %>(@PathVariable(value="id", required=true) <%= idDefaultJavaType %> id) {
+
         <%= entityName %>Dto result = <%= entityNameFirstLower %>Service.select<%= entityName %>(id);
+
         return ResponseUtil.createSuccessResponse(result);
     }
 
@@ -44,18 +46,22 @@ public class <%= entityName %>Controller {
     public ResponseEntity<?> select<%= entityName %>List(
         @RequestParam(value="pageNum", required=false, defaultValue="1") int pageNum
         ,@RequestParam(value="pageSize", required=false, defaultValue="10") int pageSize){
+
         <%= entityName %>Dto paramDto = new <%= entityName %>Dto();
 
         // Page 조회
         PageHelper.startPage(pageNum, pageSize);
         PageInfo<<%= entityName %>Dto> pageList = <%= entityNameFirstLower %>Service.select<%= entityName %>List(paramDto);
+
         return ResponseUtil.createSuccessResponse(pageList);
     }
 
     @Operation(summary = "<%= tableDescription %> 등록", description = "<%= tableDescription %> 등록 API")
     @PostMapping(value = "<%= apiPath %>")
     public ResponseEntity<?> insert<%= entityName %>(@Valid @RequestBody(required=true) <%= entityName %>Dto reqDto){
+
         <%= entityNameFirstLower %>Service.insert<%= entityName %>(reqDto);
+
         return ResponseUtil.createSuccessResponse();
     }
 
@@ -64,13 +70,16 @@ public class <%= entityName %>Controller {
     public ResponseEntity<?> update<%= entityName %>(@PathVariable(value="id", required=true) <%= idDefaultJavaType %> id, @Valid @RequestBody(required=true) <%= entityName %>Dto reqDto){
         
         <%= entityNameFirstLower %>Service.update<%= entityName %>(reqDto);
+
         return ResponseUtil.createSuccessResponse();
     }
 
     @Operation(summary = "<%= tableDescription %> 삭제", description = "<%= tableDescription %> 삭제 API")
     @DeleteMapping(value = "<%= apiPath %>/{id}")
     public ResponseEntity<?> delete<%= entityName %>(@PathVariable(value="id", required=true) <%= idDefaultJavaType %> id){
+        
         <%= entityNameFirstLower %>Service.delete<%= entityName %>(id);
+
         return ResponseUtil.createSuccessResponse();
     }
 

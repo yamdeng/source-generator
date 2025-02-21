@@ -35,7 +35,7 @@ const columnSelectSql = `SELECT ordinal_position
           WHEN cols.data_type IN( 'character', 'character varying' ) THEN 'String'
           WHEN cols.data_type IN( 'date' ) THEN 'LocalDate'
           WHEN cols.data_type IN( 'timestamp without time zone', 'time without time zone', 'timestamp' ) THEN 'LocalDateTime'
-          WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale = 0 or cols.numeric_scale is null) THEN 'Integer'
+          WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale = 0 or cols.numeric_scale is null) THEN 'Long'
           WHEN cols.data_type IN( 'numeric' ) and (cols.numeric_scale != 0 or cols.numeric_scale is not null) THEN 'BigDecimal'
           WHEN cols.data_type IN( 'real' ) THEN 'Float'
           WHEN cols.data_type IN( 'double precision' ) THEN 'Double'
