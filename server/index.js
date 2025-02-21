@@ -5,6 +5,7 @@ const fs = require("fs");
 const { SERVER_PORT } = process.env;
 const { tableSelectSql, columnSelectSql } = require("./sql-string");
 const Config = require("./config");
+const Code = require("./code");
 const { readTemplateFile, formatSqlString, getEjsParameter, getGeneratorResult, createAllFile, createZipArchive, createFiledownloadByGeneratorDetailInfo } = require("./util");
 const db = require("./db");
 
@@ -63,7 +64,14 @@ app.get("/api/test", async (req, res) => {
   });
 });
 
-// 테이블 조회 : /api/tables
+/* 코드 조회 : /api/codes */
+app.get("/api/codes/:groupCode", async (req, res) => {
+  const groupCode = req.params.groupCode;
+  let codeList = Code[groupCode];
+  res.json(codeList);
+});
+
+/* 테이블 조회 : /api/tables */
 app.get("/api/tables", async (req, res) => {
   const keyword = req.query.keyword;
   let tableList = [];
@@ -82,15 +90,13 @@ app.get("/api/tables", async (req, res) => {
   });
 });
 
-// 테이블명 기준으로 컬럼 정보 조회 : /api/columns
+/* 테이블명 기준으로 컬럼 정보 조회 : /api/columns */
 app.get("/api/columns/:tableName", async (req, res) => {
   const tableName = req.params.tableName;
   let columnList = [];
   try {
     const dbResponse = await db.raw(columnSelectSql, [tableName]);
     columnList = dbResponse.rows;
-    // 컬럼주석명이 존재하지 않을 경우 낙타표기법 컬럼명으로 대체
-    // converColumnList(columnList);
     console.log(columnList);
   } catch (e) {
     console.log(e);
@@ -101,27 +107,24 @@ app.get("/api/columns/:tableName", async (req, res) => {
   });
 });
 
-// generate 문자열 반환 : /api/generate/:tableName
+/* generate 문자열 반환 : /api/generate/:tableName */
 app.post("/api/generate/:templateType/:tableName", async (req, res) => {
   const tableName = req.params.tableName;
   const templateType = req.params.templateType;
-  // let checkedColumns = req.body.checkedColumns || [];
-  // let checkedMultiColumn = req.body.checkedMultiColumn;
-  // let checkedModalUseState = req.body.checkedModalUseState;
-  // let checkedInnerFormStore = req.body.checkedInnerFormStore;
-  // let checkedSearchFormDetail = req.body.checkedSearchFormDetail;
-  const ejsParameter = await getEjsParameter(tableName);
+  const checkedColumns = req.body.checkedColumns || [];
+  const ejsParameter = await getEjsParameter(tableName, checkedColumns);
   const generatorResult = getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateType);
 
   res.json(generatorResult);
 });
 
-// generate 결과물 압축 파일로 반환 : generatorKey 파라미터 존재시 개별 다운로드
+/* generate 결과물 압축 파일로 반환 : generatorKey 파라미터 존재시 개별 다운로드 */
 app.get("/api/generate/:templateType/:tableName/fileDownload", async (req, res) => {
   const tableName = req.params.tableName;
   const templateType = req.params.templateType;
   const generatorKey = req.query.generatorKey;
-  const ejsParameter = await getEjsParameter(tableName);
+  const checkedColumns = req.body.checkedColumns || [];
+  const ejsParameter = await getEjsParameter(tableName, checkedColumns);
   const generatorResult = getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateType);
 
   let downloadFileName = "";
@@ -138,12 +141,13 @@ app.get("/api/generate/:templateType/:tableName/fileDownload", async (req, res) 
   res.download(downloadFileName);
 });
 
-// generate 결과물 result/:templateType 폴더에 파일 생성
+/* generate 결과물 result/:templateType 폴더에 파일 생성 */
 app.get("/api/generate/:templateType/:tableName/fileCreate", async (req, res) => {
   const tableName = req.params.tableName;
   const templateType = req.params.templateType;
   const generatorKey = req.query.generatorKey;
-  const ejsParameter = await getEjsParameter(tableName);
+  const checkedColumns = req.body.checkedColumns || [];
+  const ejsParameter = await getEjsParameter(tableName, checkedColumns);
   const generatorResult = getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateType);
   if (generatorKey) {
     const generatorDetailInfo = generatorResult[generatorKey];

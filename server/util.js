@@ -247,18 +247,20 @@ async function createZipArchive(tableName, generatorResult) {
 }
 
 /* ejs 템플릿 파일에 바인딩할 종합 파라미터 추출 */
-async function getEjsParameter(tableName) {
+async function getEjsParameter(tableName, checkedColumns) {
   const entityName = getEntityNameByTableName(tableName);
   const entityNameFirstLower = _.lowerFirst(entityName);
   const apiPath = getApiPathNameByTableName(tableName);
 
-  let columnList = [];
+  let columnList = checkedColumns || [];
   let tableDescription = "";
 
   try {
     const dbResponse1 = await db.raw(tableSelectSqlEqual, [tableName]);
-    const dbResponse2 = await db.raw(columnSelectSql, [tableName]);
-    columnList = dbResponse2.rows;
+    if (!checkedColumns || !checkedColumns.length) {
+      const dbResponse2 = await db.raw(columnSelectSql, [tableName]);
+      columnList = dbResponse2.rows;
+    }
     console.log(columnList);
     tableDescription = dbResponse1.rows[0].table_comment;
     console.log("tableDescription : ", tableDescription);

@@ -6,7 +6,7 @@ const isSqlSaveQueryNullCheck = false;
 const Config = {
   javaBasePackage: "com.orbiswork.gw",
   tablePrefixNameList: ["tas_", "to0_", "tm0_"],
-  entityExtractStrategy: Constant.ENTITY_EXTRACT_STRATEGY_BASE,
+  entityExtractStrategy: Constant.ENTITY_EXTRACT_STRATEGY_BASE /* 현재 사용 X */,
   defaultNowString: "now()",
   basicColumnList: ["reg_date", "reg_user_key", "mod_date", "mod_user_key"],
   isSqlSaveQueryNullCheck: isSqlSaveQueryNullCheck,
@@ -66,9 +66,7 @@ const Config = {
       templateType: Constant.TEMPLATE_TYPE_BACKEND,
     },
   ],
-  applyXmlSqlIdEntity: false,
   nowDateSqlString: "now()",
-  isMapperNameSpaceFullPackage: false,
   apiRootPath: "/api",
   idDefaultJavaType: "String",
 };
