@@ -289,6 +289,11 @@ async function getEjsParameter(tableName) {
   let updateColums = "";
   let dtoMembers = "";
 
+  // mybatis null check
+  let ifCheckInsertColumns = "";
+  let ifCheckInsertValues = "";
+  let ifCheckUpdateColumns = "";
+
   columnList.forEach((columnDbInfo, columnListIndex) => {
     const { column_name, column_comment, camel_case } = columnDbInfo;
     // 마지막이 아닌 경우에만 반영
@@ -305,7 +310,7 @@ async function getEjsParameter(tableName) {
   let existNotBlankColumn = false;
 
   saveColumnList.forEach((columnDbInfo, columnListIndex) => {
-    const { column_name, java_type, column_comment, camel_case, is_nullable } = columnDbInfo;
+    const { column_name, java_type, column_comment, camel_case, is_nullable, is_primary_key } = columnDbInfo;
     let notNullAnnotationApply = false;
     let notBlankAnnotationApply = false;
     // 마지막이 아닌 경우에만 반영
@@ -334,6 +339,20 @@ async function getEjsParameter(tableName) {
     } else {
       dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
     }
+
+    // mybatis <if> 반영 insert, update
+    if (is_nullable === "YES" && is_primary_key === "N") {
+      ifCheckInsertColumns =
+        ifCheckInsertColumns + `\t\t\t\t<if test="${camel_case} != null and !${camel_case}.equals('')">${column_name},</if>${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+      ifCheckInsertValues =
+        ifCheckInsertValues + `\t\t\t\t<if test="${camel_case} != null and !${camel_case}.equals('')">#{${camel_case}},</if>${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+      ifCheckUpdateColumns =
+        ifCheckUpdateColumns + `\t\t\t\t<if test="${camel_case} != null and ${camel_case} != ''">${column_name} = #{${camel_case}},</if>${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+    } else {
+      ifCheckInsertColumns = ifCheckInsertColumns + `\t\t\t\t${column_name},${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+      ifCheckInsertValues = ifCheckInsertValues + `\t\t\t\t#{${camel_case}},${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+      ifCheckUpdateColumns = ifCheckUpdateColumns + `\t\t\t\t${column_name} = #{${camel_case}},${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+    }
   });
 
   const ejsParameter = {
@@ -357,6 +376,9 @@ async function getEjsParameter(tableName) {
     apiPath: apiPath,
     entityNameFirstLower: entityNameFirstLower,
     idDefaultJavaType: Config.idDefaultJavaType,
+    ifCheckInsertColumns: ifCheckInsertColumns,
+    ifCheckInsertValues: ifCheckInsertValues,
+    ifCheckUpdateColumns: ifCheckUpdateColumns,
   };
 
   return ejsParameter;

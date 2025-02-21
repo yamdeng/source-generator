@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="<%= mapperNamespace %>">
+
+  <!-- <%= tableName %> 목록 조회 -->
+  <select id="selectList" parameterType="<%= packageName %>.dto.<%= entityName %>Dto" resultType="<%= packageName %>.dto.<%= entityName %>Dto">
+    SELECT
+        <%= selectColumnNames %>
+      FROM <%= tableName %>
+     WHERE 1=1
+  </select>
+
+  <!-- <%= tableName %> 상세 조회 -->
+  <select id="selectDetail" parameterType="<%= packageName %>.dto.<%= entityName %>Dto" resultType="<%= packageName %>.dto.<%= entityName %>Dto">
+    SELECT
+        <%= selectColumnNames %>
+      FROM <%= tableName %>
+     WHERE 1=1<%= primaryKeyConditions %>
+  </select>
+
+  <!-- <%= tableName %> insert check null -->
+  <insert id="insert" parameterType="<%= packageName %>.dto.<%= entityName %>Dto">
+    INSERT INTO <%= tableName %>
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+ <%- ifCheckInsertColumns %>
+        reg_date, reg_user_key, mod_date, mod_user_key
+    </trim>
+    VALUES
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+<%- ifCheckInsertValues %>
+        <%= nowDateSqlString %>, #{regUserKey}, <%= nowDateSqlString %>, #{modUserKey}
+    </trim>
+  </insert>
+
+  <!-- <%= tableName %> update -->
+  <update id="update" parameterType="<%= packageName %>.dto.<%= entityName %>Dto">
+    UPDATE <%= tableName %> 
+    <set>
+<%- ifCheckUpdateColumns %>
+        mod_date = now(),
+        mod_user_key = #{modUserKey}
+    </set>
+    WHERE 1=1<%= primaryKeyConditions %>
+  </update>
+
+  <!-- <%= tableName %> delete -->
+  <delete id="delete" parameterType="string">
+    DELETE
+      FROM <%= tableName %>
+     WHERE 1=1<%= primaryKeyConditions %>
+  </delete>
+
+</mapper>

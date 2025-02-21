@@ -1,21 +1,25 @@
 const Constant = require("./constant");
 
+// mybatis에 <if> 반영 여부
+const isSqlSaveQueryNullCheck = false;
+
 const Config = {
   javaBasePackage: "com.orbiswork.gw",
   tablePrefixNameList: ["tas_", "to0_", "tm0_"],
   entityExtractStrategy: Constant.ENTITY_EXTRACT_STRATEGY_BASE,
   defaultNowString: "now()",
   basicColumnList: ["reg_date", "reg_user_key", "mod_date", "mod_user_key"],
+  isSqlSaveQueryNullCheck: isSqlSaveQueryNullCheck,
   templateFileList: [
     {
       generatorKey: Constant.GENERATE_TYPE_SQL,
       templateType: Constant.TEMPLATE_TYPE_BACKEND,
-      fileName: "sql.ejs",
+      fileName: isSqlSaveQueryNullCheck ? "sql-null-check.ejs" : "sql.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_MAPPER_SQL,
       templateType: Constant.TEMPLATE_TYPE_BACKEND,
-      fileName: "sql.ejs",
+      fileName: isSqlSaveQueryNullCheck ? "sql-null-check.ejs" : "sql.ejs",
     },
     {
       generatorKey: Constant.GENERATE_TYPE_MYABITS_MAPPER,
