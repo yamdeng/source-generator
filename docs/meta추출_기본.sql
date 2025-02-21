@@ -199,7 +199,6 @@ FROM   information_schema.columns cols
 WHERE  table_name = Lower('tas_a_doc')
 ORDER  BY ordinal_position);
 
-
 -- 테이블 주석 가져오기 case1
 SELECT C.relname              AS table_name,
        Obj_description(C.oid) AS table_comment
@@ -232,8 +231,6 @@ SELECT Obj_description('to0_rank_main' :: regclass, 'pg_class') AS table_comment
       AND tc.table_schema = kcu.table_schema
     WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name = 'tas_a_doc';
 
-
-
 -- table comment ddl
 SELECT 'COMMENT ON TABLE ' || 'elsn.to0_corporation IS' || E' \'' || COALESCE(Obj_description('to0_corporation' :: regclass, 'pg_class'), 'No Comment') || E'\'' || ';';
 
@@ -250,3 +247,13 @@ SELECT table_name
 FROM   information_schema.columns cols
 WHERE  table_name = Lower('to0_corporation')
 ORDER  BY ordinal_position);
+
+/* 제약조건 삭제 sql 생성 : 테이블명 기준 */
+SELECT 'ALTER TABLE ' || conrelid::regclass || ' DROP CONSTRAINT ' || conname || ';'
+FROM pg_constraint 
+WHERE conrelid = 'tas_cor_config_sub'::regclass;
+
+/* 제약조건 조회 : 테이블명 기준 */
+SELECT conname, conrelid::regclass 
+FROM pg_constraint 
+WHERE conrelid = 'tas_cor_config_sub'::regclass;
