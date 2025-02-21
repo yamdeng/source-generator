@@ -38,17 +38,27 @@ function applyEjsRender(ejsContent, ejsParameter) {
 
 /* 테이블명을 기준으로 Entity명(기준명) 추출 */
 function getEntityNameByTableName(tableName) {
-  return tableEntityMapping[tableName.toUpperCase()].entityName;
+  const tableEntityMappingInfo = tableEntityMapping[tableName.toUpperCase()];
+  if (tableEntityMappingInfo) {
+    return tableEntityMappingInfo.entityName;
+  } else {
+    return _.upperFirst(_.camelCase(tableName.split("_").slice(1).join("_")));
+  }
 }
 
 /* 테이블명을 기준으로 apiPath 추출 */
 function getApiPathNameByTableName(tableName) {
-  const entityName = tableEntityMapping[tableName.toUpperCase()].entityName;
-  const apiPath = tableEntityMapping[tableName.toUpperCase()].apiPath;
-  if (apiPath) {
-    return apiPath;
+  const tableEntityMappingInfo = tableEntityMapping[tableName.toUpperCase()];
+  if (tableEntityMappingInfo) {
+    const { entityName, apiPath } = tableEntityMappingInfo;
+    if (apiPath) {
+      return apiPath;
+    } else {
+      return `/${_.kebabCase(entityName)}`;
+    }
+  } else {
+    return `${Config.apiRootPath}/${_.kebabCase(_.camelCase(tableName.split("_").slice(1).join("_")))}`;
   }
-  return `/${_.kebabCase(entityName)}`;
 }
 
 /* sql 문자열 포맷팅 */

@@ -104,6 +104,7 @@ const tableEntityMapping = {
   TRS_SHARE_SECURITY: { entityName: "RegistrationShareSecurity", apiPath: "" },
   TRS_U_B_CODE: { entityName: "RegistrationUnitCode", apiPath: "" },
   TRS_UNOFFICIAL_REGISTRATION: { entityName: "RegistrationUnofficialDoc", apiPath: "" },
+  TO0_COMMON_FILE: { entityName: "CommonFile", apiPath: "" },
 };
 
 module.exports = tableEntityMapping;
