@@ -257,3 +257,9 @@ WHERE conrelid = 'tas_cor_config_sub'::regclass;
 SELECT conname, conrelid::regclass 
 FROM pg_constraint 
 WHERE conrelid = 'tas_cor_config_sub'::regclass;
+
+/* DROP TABLE 반영 */
+SELECT 'drop table ' || table_name || ';'
+FROM information_schema.tables
+WHERE table_type = 'BASE TABLE' and table_schema = 'elsn';
+
