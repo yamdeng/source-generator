@@ -28,7 +28,7 @@
   <!-- <%= tableName %> update -->
   <update id="update" parameterType="<%= packageName %>.dto.<%= entityName %>Dto">
     UPDATE <%= tableName %> 
-       SET <%= updateColums %>, mod_date = <%= nowDateSqlString %>, mod_user_key = #{modUserKey}
+       SET <%= updateColumns %>, mod_date = <%= nowDateSqlString %>, mod_user_key = #{modUserKey}
      WHERE 1=1<%= primaryKeyConditions %>
   </update>
 

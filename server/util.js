@@ -89,7 +89,11 @@ function getPostmanJsonStringByEjsParameter(ejsParameter) {
   const requestBody = {};
   columnList.forEach((columnDbInfo, columnListIndex) => {
     const { camel_case, java_type } = columnDbInfo;
-    requestBody[camel_case] = "";
+    if (java_type === "String") {
+      requestBody[camel_case] = "";
+    } else {
+      requestBody[camel_case] = null;
+    }
   });
 
   // 상세 : get
@@ -298,7 +302,7 @@ async function getEjsParameter(tableName, checkedColumns) {
 
   let insertColumns = "";
   let insertValues = "";
-  let updateColums = "";
+  let updateColumns = "";
   let dtoMembers = "";
 
   // mybatis null check
@@ -329,11 +333,15 @@ async function getEjsParameter(tableName, checkedColumns) {
     if (columnListIndex !== saveColumnList.length - 1) {
       insertColumns = insertColumns + column_name + ", ";
       insertValues = insertValues + `#{${camel_case}}, `;
-      updateColums = updateColums + `${column_name} = #{${camel_case}}, `;
+      if (is_primary_key !== "Y") {
+        updateColumns = updateColumns + `${column_name} = #{${camel_case}}, `;
+      }
     } else {
       insertColumns = insertColumns + column_name;
       insertValues = insertValues + `#{${camel_case}}`;
-      updateColums = updateColums + `${column_name} = #{${camel_case}}`;
+      if (is_primary_key !== "Y") {
+        updateColumns = updateColumns + `${column_name} = #{${camel_case}}`;
+      }
     }
     if (is_nullable == "NO") {
       existNotNullColumn = true;
@@ -380,7 +388,7 @@ async function getEjsParameter(tableName, checkedColumns) {
     primaryKeyConditions: primaryKeyConditions,
     insertColumns: insertColumns,
     insertValues: insertValues,
-    updateColums: updateColums,
+    updateColumns: updateColumns,
     nowDateSqlString: Config.nowDateSqlString,
     dtoMembers: dtoMembers,
     existNotNullColumn: existNotNullColumn,
