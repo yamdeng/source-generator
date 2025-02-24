@@ -37,25 +37,25 @@ public class <%= entityName %>DaoTest {
     @Test
     @Disabled
     public void test<%= entityName %>Insert() {
-        <%= entityName %>Dto dto = <%= entityName %>Dto.builder()<% saveColumnList.forEach((columnInfo, columnListIndex)=> { %> <% if(columnInfo.java_type === 'String') { %>
+        <%= entityName %>Dto <%= entityNameFirstLower %>Dto = <%= entityName %>Dto.builder()<% saveColumnList.forEach((columnInfo, columnListIndex)=> { %> <% if(columnInfo.java_type === 'String') { %>
                 .<%= columnInfo.camel_case %>("")<% } else { %>
                 .<%= columnInfo.camel_case %>(null) <% } %> <% }) %>
                 .regDate(LocalDateTime.now())
                 .modDate(LocalDateTime.now())
                 .build();
-        commonSqlDao.insert("<%= entityName %>.insert", dto);
+        commonSqlDao.insert("<%= entityName %>.insert", <%= entityNameFirstLower %>Dto);
     }
 
     @Test
     @Disabled
     public void test<%= entityName %>Update() {
-        <%= entityName %>Dto dto = <%= entityName %>Dto.builder()<% saveColumnList.forEach((columnInfo, columnListIndex)=> { %> <% if(columnInfo.java_type === 'String') { %>
+        <%= entityName %>Dto <%= entityNameFirstLower %>Dto = <%= entityName %>Dto.builder()<% saveColumnList.forEach((columnInfo, columnListIndex)=> { %> <% if(columnInfo.java_type === 'String') { %>
                 .<%= columnInfo.camel_case %>("")<% } else { %>
                 .<%= columnInfo.camel_case %>(null) <% } %> <% }) %>
                 .regDate(LocalDateTime.now())
                 .modDate(LocalDateTime.now())
                 .build();
-        commonSqlDao.update("<%= entityName %>.update", dto);
+        commonSqlDao.update("<%= entityName %>.update", <%= entityNameFirstLower %>Dto);
     }
 
     @Test

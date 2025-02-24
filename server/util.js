@@ -335,19 +335,20 @@ async function getEjsParameter(tableName, checkedColumns) {
       insertValues = insertValues + `#{${camel_case}}`;
       updateColums = updateColums + `${column_name} = #{${camel_case}}`;
     }
-    if (is_nullable) {
+    if (is_nullable == "NO") {
+      existNotNullColumn = true;
       if (java_type === "String") {
         existNotBlankColumn = true;
         notBlankAnnotationApply = true;
       } else {
-        existNotNullColumn = true;
         notNullAnnotationApply = true;
       }
     }
-    if (notNullAnnotationApply) {
+    if (notBlankAnnotationApply) {
+      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotNull\n\t@NotBlank\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+      // dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotBlank\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+    } else if (notNullAnnotationApply) {
       dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotNull\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
-    } else if (notBlankAnnotationApply) {
-      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotBlank\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
     } else {
       dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
     }
