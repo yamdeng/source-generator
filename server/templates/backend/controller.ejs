@@ -58,7 +58,7 @@ public class <%= entityName %>Controller {
 
     @Operation(summary = "<%= tableDescription %> 등록", description = "<%= tableDescription %> 등록 API")
     @PostMapping(value = "<%= apiPath %>")
-    public ResponseEntity<?> insert<%= entityName %>(@Valid @RequestBody(required=true) <%= entityName %>Dto reqDto){
+    public ResponseEntity<?> create<%= entityName %>(@Valid @RequestBody(required=true) <%= entityName %>Dto reqDto){
 
         <%= entityNameFirstLower %>Service.insert<%= entityName %>(reqDto);
 

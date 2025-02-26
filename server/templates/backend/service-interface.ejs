@@ -10,7 +10,7 @@ public interface <%= entityName %>Service {
 
     PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto paramDto);
 
-    void insert<%= entityName %>(<%= entityName %>Dto dto);
+    void create<%= entityName %>(<%= entityName %>Dto dto);
 
     void update<%= entityName %>(<%= entityName %>Dto dto);
 

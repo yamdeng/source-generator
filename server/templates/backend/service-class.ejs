@@ -26,7 +26,7 @@ public class <%= entityName %>ServiceImpl extends AbstractCommonDaoService imple
     }
 
     @Override
-    public void insert<%= entityName %>(<%= entityName %>Dto dto) {
+    public void create<%= entityName %>(<%= entityName %>Dto dto) {
         commonSqlDao.insert("<%= entityName %>.insert", dto);
     }
 
