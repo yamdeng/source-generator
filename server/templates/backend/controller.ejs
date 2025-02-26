@@ -82,9 +82,7 @@ public class <%= entityName %>Controller {
     @PostMapping(value = "<%= apiPath %>")
     public ResponseEntity<?> create<%= entityName %>(@Valid @RequestBody(required=true) <%= entityName %>Dto reqDto){
 
-        <%= entityNameFirstLower %>Service.insert<%= entityName %>(reqDto);
-
-        return ResponseUtil.createSuccessResponse();
+        return ResponseUtil.createSuccessResponse(<%= entityNameFirstLower %>Service.create<%= entityName %>(reqDto));
     }
 
     /*

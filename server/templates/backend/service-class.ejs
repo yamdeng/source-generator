@@ -29,9 +29,11 @@ public class <%= entityName %>ServiceImpl extends AbstractCommonDaoService imple
     }
 
     @Override
-    public void create<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto) {
+    public <%= entityName %>Dto create<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto) {
 
         commonSqlDao.insert("<%= entityName %>.insert", <%= entityNameFirstLower %>Dto);
+
+        return commonSqlDao.selectOne("<%= entityName %>.selectDetail", <%= entityNameFirstLower %>Dto);
     }
 
     @Override

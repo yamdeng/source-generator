@@ -33,9 +33,11 @@ public class <%= entityName %>ServiceMapperImpl implements <%= entityName %>Serv
     }
 
     @Override
-    public void create<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto) {
+    public <%= entityName %>Dto create<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto) {
 
         <%= entityNameFirstLower %>Mapper.insert(<%= entityNameFirstLower %>Dto);
+
+        return <%= entityNameFirstLower %>Mapper.selectDetail(<%= entityNameFirstLower %>Dto);
     }
 
     @Override
