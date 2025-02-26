@@ -20,19 +20,19 @@ public class <%= entityName %>ServiceImpl extends AbstractCommonDaoService imple
 
     @SuppressWarnings("unchecked")
     @Override
-    public PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto dto) {
-        List<<%= entityName %>Dto> resultList = commonSqlDao.selectList("<%= entityName %>.selectList", dto);
+    public PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto pageParamDto) {
+        List<<%= entityName %>Dto> resultList = commonSqlDao.selectList("<%= entityName %>.selectList", pageParamDto);
         return PageInfo.of(resultList);
     }
 
     @Override
-    public void create<%= entityName %>(<%= entityName %>Dto dto) {
-        commonSqlDao.insert("<%= entityName %>.insert", dto);
+    public void create<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto) {
+        commonSqlDao.insert("<%= entityName %>.insert", <%= entityNameFirstLower %>Dto);
     }
 
     @Override
-    public void update<%= entityName %>(<%= entityName %>Dto dto) {
-        commonSqlDao.update("<%= entityName %>.update", dto);
+    public void update<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto) {
+        commonSqlDao.update("<%= entityName %>.update", <%= entityNameFirstLower %>Dto);
     }
 
     @Override

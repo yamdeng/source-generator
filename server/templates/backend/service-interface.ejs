@@ -8,11 +8,11 @@ public interface <%= entityName %>Service {
 
     <%= entityName %>Dto select<%= entityName %>(<%= idDefaultJavaType %> id);
 
-    PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto paramDto);
+    PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto pageParamDto);
 
-    void create<%= entityName %>(<%= entityName %>Dto dto);
+    void create<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto);
 
-    void update<%= entityName %>(<%= entityName %>Dto dto);
+    void update<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto);
 
     void delete<%= entityName %>(<%= idDefaultJavaType %> id);
     

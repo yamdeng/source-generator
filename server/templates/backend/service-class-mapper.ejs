@@ -24,19 +24,19 @@ public class <%= entityName %>ServiceMapperImpl implements <%= entityName %>Serv
 
     @SuppressWarnings("unchecked")
     @Override
-    public PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto dto) {
-        List<<%= entityName %>Dto> resultList = <%= entityNameFirstLower %>Mapper.selectList(dto);
+    public PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto pageParamDto) {
+        List<<%= entityName %>Dto> resultList = <%= entityNameFirstLower %>Mapper.selectList(pageParamDto);
         return PageInfo.of(resultList);
     }
 
     @Override
-    public void create<%= entityName %>(<%= entityName %>Dto dto) {
-        <%= entityNameFirstLower %>Mapper.insert(dto);
+    public void create<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto) {
+        <%= entityNameFirstLower %>Mapper.insert(<%= entityNameFirstLower %>Dto);
     }
 
     @Override
-    public void update<%= entityName %>(<%= entityName %>Dto dto) {
-        <%= entityNameFirstLower %>Mapper.update(dto);
+    public void update<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto) {
+        <%= entityNameFirstLower %>Mapper.update(<%= entityNameFirstLower %>Dto);
     }
 
     @Override
