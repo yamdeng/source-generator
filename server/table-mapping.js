@@ -42,7 +42,7 @@ const tableEntityMapping = {
   TAS_A_DOC_POST: { entityName: "ApprovalDocPost", apiPath: "" },
   TAS_A_LINE: { entityName: "ApprovalLine", apiPath: "" },
   TAS_A_LINE_GROUP: { entityName: "ApprovalLineGroup", apiPath: "" },
-  TAS_A_LINE_GROUP_Detail: { entityName: "ApprovalLineGroupDetail", apiPath: "" },
+  TAS_A_LINE_GROUP_DETAIL: { entityName: "ApprovalLineGroupDetail", apiPath: "" },
   TAS_A_LINE_HISTROY: { entityName: "ApprovalLineHistory", apiPath: "" },
   TAS_A_PUBDOC_CONFIG: { entityName: "ApporvalPubdocConfig", apiPath: "" },
   TAS_A_PUBDOC_DIS_LOG: { entityName: "ApporvalPubdocDisLog", apiPath: "" },
