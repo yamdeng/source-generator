@@ -10,11 +10,11 @@ public interface <%= entityName %>Mapper {
 
     <%= entityName %>Dto selectDetail(<%= idDefaultJavaType %> id);
 
-    List<<%= entityName %>Dto> selectList(<%= entityName %>Dto dto);
+    List<<%= entityName %>Dto> selectList(<%= entityName %>Dto pageParamDto);
 
-    void insert(<%= entityName %>Dto dto);
+    void insert(<%= entityName %>Dto <%= entityNameFirstLower %>Dto);
 
-    void update(<%= entityName %>Dto dto);
+    void update(<%= entityName %>Dto <%= entityNameFirstLower %>Dto);
 
     void delete(<%= idDefaultJavaType %> id);
 
