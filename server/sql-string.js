@@ -1,10 +1,3 @@
-// const tableSelectSql = `select *
-// FROM information_schema.tables
-// where table_name like :keyword
-// and table_type = 'BASE TABLE'
-// and table_schema = 'public'
-// `;
-
 const tableSelectSql = `SELECT C.RELNAME as table_name, OBJ_DESCRIPTION(C.OID) as table_comment
 FROM PG_CATALOG.PG_CLASS C INNER JOIN PG_CATALOG.PG_NAMESPACE N ON C.RELNAMESPACE=N.OID
 WHERE C.RELKIND = 'r'

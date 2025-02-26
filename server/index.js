@@ -6,12 +6,8 @@ const { SERVER_PORT } = process.env;
 const { tableSelectSql, columnSelectSql } = require("./sql-string");
 const Config = require("./config");
 const Code = require("./code");
-const { readTemplateFile, formatSqlString, getEjsParameter, getGeneratorResult, createAllFile, createZipArchive, createFiledownloadByGeneratorDetailInfo } = require("./util");
+const { readTemplateFile, getEjsParameter, getGeneratorResult, createAllFile, createZipArchive, createFiledownloadByGeneratorDetailInfo } = require("./util");
 const db = require("./db");
-
-const testSqlString = `INSERT INTO TO0_CORPORATION
-(A_DOC_KEY, A_DOC_NUM, SITE_KEY, A_DOC_NAME, SEND_TYPE_CODE, DOC_TYPE_CODE, REAL_A_STATUS, SECRET_LEVEL_CODE, OPEN_TYPE, TIME_LIMIT, DEPT_KEY, SPEED_YN, SECURITY_YN, SECURITY_END_DAY, HISTORY_M_YN, PAGE, A_SUMMARY, BEFORE_A_DOC_KEY, BEFORE_R_DOC_KEY, ATTACHED_YN, HISTORY_YN, DISPLAY_YN, RETURN_YN, RECOVERY_YN, COMMENTS_YN, EXECUTE_DATE, DRAFT_DATE, DRAFT_USER_KEY, REG_USER_KEY, MOD_DATE, MOD_USER_KEY, USE_YN, S_DOC_KEY, RECORDS_NUM, A_END_DATE, R_DEPT_YN, STORAGE_KEY, P_REG_NUM, IO_DIV, ADD_COL1, ADD_COL2, ADD_COL3, ADD_COL4, ADD_COL5, ADD_COL6)
-VALUES(#{aDocKey}, #{aDocNum}, #{siteKey}, #{aDocName}, #{sendTypeCode}, #{docTypeCode}, #{realAStatus}, #{secretLevelCode}, #{openType}, #{timeLimit}, #{deptKey}, #{speedYn}, #{securityYn}, #{securityEndDay}, #{historyMYn}, #{page}, #{aSummary}, #{beforeADocKey}, #{beforeRDocKey}, #{attachedYn}, #{historyYn}, #{displayYn}, #{returnYn}, #{recoveryYn}, #{commentsYn}, #{executeDate}, #{draftDate}, #{draftUserKey}, #{regUserKey}, #{modDate}, #{modUserKey}, #{useYn}, #{sDocKey}, #{recordsNum}, #{aEndDate}, #{rDeptYn}, #{storageKey}, #{pRegNum}, #{ioDiv}, #{addCol1}, #{addCol2}, #{addCol3}, #{addCol4}, #{addCol5}, #{addCol6})`;
 
 // ======= server init start =======
 
@@ -53,16 +49,6 @@ const generatorFileMap = {};
 readTemplateFile(generatorFileMap);
 
 // ======= server init end =======
-
-/* 기본 기능 테스트 api */
-app.get("/api/test", async (req, res) => {
-  const finalSQL = formatSqlString(testSqlString);
-  console.log(finalSQL);
-  res.json({
-    result: finalSQL,
-    orginal: testSqlString,
-  });
-});
 
 /* 코드 조회 : /api/codes */
 app.get("/api/codes/:groupCode", async (req, res) => {
