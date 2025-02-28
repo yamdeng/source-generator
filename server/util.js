@@ -134,9 +134,9 @@ function getPostmanJsonStringByEjsParameter(ejsParameter) {
     },
   });
 
-  // 추가 : post
+  // 등록 : post
   requestList.push({
-    name: `${tableDescription} 추가`,
+    name: `${tableDescription} 등록`,
     request: {
       method: "POST",
       header: [
@@ -485,6 +485,20 @@ function isFirstLowerSecondUpper(str) {
   return /^[a-z][A-Z]/.test(str);
 }
 
+/* 테이블 as 별칭명 추출 */
+function getTableAlias(tableName) {
+  // alias 속서이 없으면 tableName을 소문자로 반영해서 alias로 반영
+  const tableEntityMappingInfo = tableEntityMapping[tableName.toUpperCase()];
+  if (tableEntityMappingInfo) {
+    if (tableEntityMappingInfo.alias) {
+      return tableEntityMappingInfo.alias;
+    }
+    return tableName.toLowerCase();
+  } else {
+    return tableName.toLowerCase();
+  }
+}
+
 // ✅ 여러 개의 변수를 객체로 내보내기
 module.exports = {
   readTemplateFile,
@@ -500,4 +514,5 @@ module.exports = {
   getGeneratorResult,
   createFiledownloadByGeneratorDetailInfo,
   isFirstLowerSecondUpper,
+  getTableAlias,
 };
