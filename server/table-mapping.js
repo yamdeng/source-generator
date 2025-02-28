@@ -27,7 +27,7 @@ const tableEntityMapping = {
   TO0_SETTING_INFO: { entityName: "SettingInfo", apiPath: "" },
   TO0_USER_ADD_JOB: { entityName: "UserAddJob", apiPath: "" },
   TO0_USER_LOG_INFO: { entityName: "UserLogInfo", apiPath: "" },
-  TO0_USER_MAIN: { entityName: "User", apiPath: "", alias: "user" },
+  TO0_USER_MAIN: { entityName: "User", apiPath: "", alias: "user_main" },
   TO0_USER_MAIN_HISTORY: { entityName: "UserHistory", apiPath: "" },
   TM0_ADMIN_MENU: { entityName: "AdminMenu", apiPath: "" },
   TM0_ADMIN_MENU_ACL: { entityName: "AdminMenuAcl", apiPath: "" },

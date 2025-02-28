@@ -197,8 +197,6 @@ app.post("/api/generate/joinSql", async (req, res) => {
     tableNameListSortInfo[tableName] = index + 1;
   });
 
-  console.log("tableNameListSortInfo : ", tableNameListSortInfo);
-
   let columnList = [];
   try {
     const dbResponse = await db.raw(applySqlString, tableNameList);
@@ -247,9 +245,6 @@ app.post("/api/generate/joinSql", async (req, res) => {
   const selectColumns = Object.entries(tableColumns)
     .map(([table, columns]) => columns.map((col) => `    ${table}.${col.column} /* ${col.comment} */`).join(",\n"))
     .join(",\n");
-
-  // console.log("tableColumns", tableColumns);
-  // console.log("selectColumns", selectColumns);
 
   // JOIN 조건을 기반으로 FROM ~ JOIN 절 생성
   const fromTable = tableNameList[0]; // 첫 번째 테이블을 FROM으로 지정
