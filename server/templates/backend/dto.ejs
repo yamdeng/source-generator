@@ -2,6 +2,7 @@ package <%= packageName %>.dto;
 
 import <%= packageName %>.common.dto.CommonDto;
 import io.swagger.v3.oas.annotations.media.Schema;
+<% if(existJsonProperty) { %>import com.fasterxml.jackson.annotation.JsonProperty;;<% } %>
 <% if(existNotNullColumn) { %>import jakarta.validation.constraints.NotNull;<% } %>
 <% if(existNotBlankColumn) { %>import jakarta.validation.constraints.NotBlank;<% } %>
 import lombok.NoArgsConstructor;

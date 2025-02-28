@@ -282,6 +282,20 @@ async function getEjsParameter(tableName, checkedColumns) {
     console.log(e);
   }
 
+  let existJsonProperty = false;
+
+  // columnList 속성 재반영
+  columnList.forEach((columnDbInfo) => {
+    const { camel_case } = columnDbInfo;
+    // 첫번째 문자가 소문자이고 두번째 문자가 대문자인지 확인
+    if (isFirstLowerSecondUpper(camel_case)) {
+      columnDbInfo.isFirstLowerSecondUpper = true;
+      existJsonProperty = true;
+    } else {
+      columnDbInfo.isFirstLowerSecondUpper = false;
+    }
+  });
+
   let selectColumnNames = "";
   let pkColumnList = columnList.filter((columnInfo) => columnInfo.is_primary_key === "Y");
   let saveColumnList = columnList.filter((columnInfo) => {
@@ -326,7 +340,7 @@ async function getEjsParameter(tableName, checkedColumns) {
   let existNotBlankColumn = false;
 
   saveColumnList.forEach((columnDbInfo, columnListIndex) => {
-    const { column_name, java_type, column_comment, camel_case, is_nullable, is_primary_key } = columnDbInfo;
+    const { column_name, java_type, column_comment, camel_case, is_nullable, is_primary_key, isFirstLowerSecondUpper } = columnDbInfo;
     let notNullAnnotationApply = false;
     let notBlankAnnotationApply = false;
     // 마지막이 아닌 경우에만 반영
@@ -352,6 +366,11 @@ async function getEjsParameter(tableName, checkedColumns) {
         notNullAnnotationApply = true;
       }
     }
+
+    if (isFirstLowerSecondUpper) {
+      dtoMembers = dtoMembers + `\t@JsonProperty("${camel_case}")\n`;
+    }
+
     if (notBlankAnnotationApply) {
       dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotNull\n\t@NotBlank\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
       // dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotBlank\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
@@ -391,6 +410,7 @@ async function getEjsParameter(tableName, checkedColumns) {
     updateColumns: updateColumns,
     nowDateSqlString: Config.nowDateSqlString,
     dtoMembers: dtoMembers,
+    existJsonProperty: existJsonProperty,
     existNotNullColumn: existNotNullColumn,
     existNotBlankColumn: existNotBlankColumn,
     apiRootPath: Config.apiRootPath,
@@ -460,6 +480,11 @@ function getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateT
   return result;
 }
 
+/* 첫번째 문자가 소문자이고 두번째 문자가 대문자인지 체크 */
+function isFirstLowerSecondUpper(str) {
+  return /^[a-z][A-Z]/.test(str);
+}
+
 // ✅ 여러 개의 변수를 객체로 내보내기
 module.exports = {
   readTemplateFile,
@@ -474,4 +499,5 @@ module.exports = {
   getEjsParameter,
   getGeneratorResult,
   createFiledownloadByGeneratorDetailInfo,
+  isFirstLowerSecondUpper,
 };
