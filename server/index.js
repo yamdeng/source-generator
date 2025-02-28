@@ -100,7 +100,7 @@ app.post("/api/columns", async (req, res) => {
   const applySqlString = `
     ${columnOnlySelectSql}
     WHERE table_name IN (${tableNameList.map(() => "?").join(", ")})
-    ORDER BY ordinal_position;
+    ORDER BY table_name, ordinal_position;
 `;
 
   let columnList = [];
