@@ -6,7 +6,16 @@ const { SERVER_PORT } = process.env;
 const { tableSelectSql, columnSelectSql, columnOnlySelectSql } = require("./sql-string");
 const Config = require("./config");
 const Code = require("./code");
-const { readTemplateFile, getEjsParameter, getGeneratorResult, createAllFile, createZipArchive, createFiledownloadByGeneratorDetailInfo } = require("./util");
+const {
+  readTemplateFile,
+  getEjsParameter,
+  getGeneratorResult,
+  createAllFile,
+  createZipArchive,
+  createFiledownloadByGeneratorDetailInfo,
+  convertTemplateSqlString,
+  getResponseDtoEjsParameter,
+} = require("./util");
 const db = require("./db");
 
 // ======= server init start =======
@@ -14,6 +23,7 @@ const db = require("./db");
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const Constant = require("./constant");
 const port = SERVER_PORT;
 app.use(
   cors({
@@ -100,8 +110,7 @@ app.post("/api/columns", async (req, res) => {
   const applySqlString = `
     ${columnOnlySelectSql}
     WHERE table_name IN (${tableNameList.map(() => "?").join(", ")})
-    ORDER BY table_name, ordinal_position;
-`;
+    ORDER BY table_name, ordinal_position`;
 
   let columnList = [];
   try {
@@ -169,27 +178,100 @@ app.get("/api/generate/:templateType/:tableName/fileCreate", async (req, res) =>
   res.json({ success: true });
 });
 
-/*
-
-
-
-
-generateSQL(
-    ['department', 'org_detail', 'company'],
-    [
-        { table: 'org_detail', condition: 'department.cor_key = org_detail.org_key' },
-        { table: 'company', condition: 'department.company_id = company.id' }
-    ]
-);
-
-*/
-
 /* join-sql, select dto generate : file-create, result json */
-app.post("/api/generate/:templateType/generateJoinSql", async (req, res) => {
-  const templateType = req.params.templateType;
+app.post("/api/generate/joinSql", async (req, res) => {
   const tableNameList = req.body.tableNameList || [];
-  const joinColumnInfoList = req.body.joinColumnInfoList || [];
-  const generatorResult = {};
+  const joinConditions = req.body.joinConditions || [];
+  const isLeftJoin = req.body.isLeftJoin ? true : false;
+  const isRemoveDuplicateColumn = req.body.isRemoveDuplicateColumn ? true : false;
+  const applySqlString = `
+    ${columnOnlySelectSql}
+    WHERE table_name IN (${tableNameList.map(() => "?").join(", ")})
+    ORDER BY table_name, ordinal_position`;
+  const tableNameListSortInfo = {};
+  tableNameList.forEach((tableName, index) => {
+    tableNameListSortInfo[tableName] = index + 1;
+  });
 
-  res.json(generatorResult);
+  console.log("tableNameListSortInfo : ", tableNameListSortInfo);
+
+  let columnList = [];
+  try {
+    const dbResponse = await db.raw(applySqlString, tableNameList);
+    columnList = dbResponse.rows;
+  } catch (e) {
+    console.log(e);
+  }
+
+  // columnList 정렬 : 파라미터 테이블 순서 + ordinal_position 컬럼값 기준으로
+  columnList.forEach((columnInfo) => {
+    columnInfo.tableSortIndex = tableNameListSortInfo[columnInfo.table_name];
+  });
+  columnList = _.sortBy(columnList, ["tableSortIndex", "ordinal_position"]);
+
+  const grouped = _.groupBy(columnList, "column_name");
+  const duplicates = _.pickBy(grouped, (group) => group.length > 1);
+  const duplicateColumns = _.keys(duplicates);
+
+  // 중복된 column_name에서 첫 번째 항목만 유지
+  const seen = new Set();
+  const filteredList = columnList.filter((item) => {
+    if (!isRemoveDuplicateColumn) {
+      return true;
+    } else {
+      if (duplicateColumns.includes(item.column_name)) {
+        if (seen.has(item.column_name)) {
+          return false; // 이미 추가된 column_name이면 제거
+        }
+        seen.add(item.column_name);
+      }
+      return true; // 첫 번째 등장한 경우 유지
+    }
+  });
+
+  // 컬럼 정보를 테이블별로 분류
+  const tableColumns = filteredList.reduce((acc, row) => {
+    if (!acc[row.table_name]) acc[row.table_name] = [];
+    acc[row.table_name].push({
+      column: row.column_name,
+      comment: row.column_comment || "",
+    });
+    return acc;
+  }, {});
+
+  // SELECT 문 생성
+  const selectColumns = Object.entries(tableColumns)
+    .map(([table, columns]) => columns.map((col) => `    ${table}.${col.column} /* ${col.comment} */`).join(",\n"))
+    .join(",\n");
+
+  // console.log("tableColumns", tableColumns);
+  // console.log("selectColumns", selectColumns);
+
+  // JOIN 조건을 기반으로 FROM ~ JOIN 절 생성
+  const fromTable = tableNameList[0]; // 첫 번째 테이블을 FROM으로 지정
+  const joinClauses = joinConditions.map((cond) => `${isLeftJoin ? "left " : ""}JOIN ${cond.table} ON ${cond.condition}`).join("\n");
+
+  // 최종 SQL 생성
+  const sql = `/* ${fromTable} select join column */
+SELECT 
+${selectColumns}
+FROM ${fromTable}
+${joinClauses};
+`;
+
+  const dtoEjsParameter = await getResponseDtoEjsParameter(fromTable, filteredList);
+  console.log("dtoEjsParameter", dtoEjsParameter);
+  const dtoGeneratorString = convertTemplateSqlString(generatorFileMap[Constant.GENERATE_TYPE_DTO], dtoEjsParameter);
+
+  createFiledownloadByGeneratorDetailInfo({
+    resultFileFullPath: "./result/sql/ResponseDto.java",
+    finalResultString: dtoGeneratorString,
+  });
+
+  createFiledownloadByGeneratorDetailInfo({
+    resultFileFullPath: "./result/sql/JoinSql.sql",
+    finalResultString: sql,
+  });
+
+  res.json({ sql: sql, tableColumns: tableColumns });
 });

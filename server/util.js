@@ -499,6 +499,59 @@ function getTableAlias(tableName) {
   }
 }
 
+/* 메인 테이블 기준 응답 dto ejsParameter 추출 */
+async function getResponseDtoEjsParameter(mainTableName, columnList, prefixPackageName = "response") {
+  const packageName = `${Config.javaBasePackage}.dto.${prefixPackageName}`;
+
+  let existJsonProperty = false;
+  let existNotNullColumn = false;
+  let existNotBlankColumn = false;
+  let dtoMembers = "";
+
+  let filterColumnList = columnList.filter((columnInfo) => {
+    const { column_name } = columnInfo;
+    if (Config.basicColumnList.find((basicColumnName) => basicColumnName === column_name)) {
+      return false;
+    }
+    return true;
+  });
+
+  filterColumnList.forEach((columnDbInfo) => {
+    const { java_type, column_comment, camel_case, is_nullable } = columnDbInfo;
+    let notNullAnnotationApply = false;
+    let notBlankAnnotationApply = false;
+    if (is_nullable == "NO") {
+      existNotNullColumn = true;
+      if (java_type === "String") {
+        existNotBlankColumn = true;
+        notBlankAnnotationApply = true;
+      } else {
+        notNullAnnotationApply = true;
+      }
+    }
+
+    if (isFirstLowerSecondUpper(camel_case)) {
+      existJsonProperty = true;
+      dtoMembers = dtoMembers + `\t@JsonProperty("${camel_case}")\n`;
+    }
+
+    dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+  });
+
+  let tableDescription = "";
+  let entityName = getEntityNameByTableName(mainTableName);
+
+  try {
+    const dbResponse1 = await db.raw(tableSelectSqlEqual, [mainTableName]);
+    tableDescription = dbResponse1.rows[0].table_comment;
+    console.log("tableDescription : ", tableDescription);
+  } catch (e) {
+    console.log(e);
+  }
+
+  return { packageName, tableDescription, entityName, existJsonProperty, existNotNullColumn, existNotBlankColumn, dtoMembers };
+}
+
 // ✅ 여러 개의 변수를 객체로 내보내기
 module.exports = {
   readTemplateFile,
@@ -515,4 +568,5 @@ module.exports = {
   createFiledownloadByGeneratorDetailInfo,
   isFirstLowerSecondUpper,
   getTableAlias,
+  getResponseDtoEjsParameter,
 };
