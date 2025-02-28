@@ -339,6 +339,9 @@ async function getEjsParameter(tableName, checkedColumns) {
   let existNotNullColumn = false;
   let existNotBlankColumn = false;
 
+  let existLocalDateTime = false;
+  let existLocalDate = false;
+
   saveColumnList.forEach((columnDbInfo, columnListIndex) => {
     const { column_name, java_type, column_comment, camel_case, is_nullable, is_primary_key, isFirstLowerSecondUpper } = columnDbInfo;
     let notNullAnnotationApply = false;
@@ -365,6 +368,12 @@ async function getEjsParameter(tableName, checkedColumns) {
       } else {
         notNullAnnotationApply = true;
       }
+    }
+
+    if (java_type === "LocalDateTime") {
+      existLocalDateTime = true;
+    } else if (java_type === "LocalDate") {
+      existLocalDate = true;
     }
 
     if (isFirstLowerSecondUpper) {
@@ -410,6 +419,8 @@ async function getEjsParameter(tableName, checkedColumns) {
     updateColumns: updateColumns,
     nowDateSqlString: Config.nowDateSqlString,
     dtoMembers: dtoMembers,
+    existLocalDateTime: existLocalDateTime,
+    existLocalDate: existLocalDate,
     existJsonProperty: existJsonProperty,
     existNotNullColumn: existNotNullColumn,
     existNotBlankColumn: existNotBlankColumn,
@@ -503,6 +514,8 @@ function getTableAlias(tableName) {
 async function getResponseDtoEjsParameter(mainTableName, columnList, prefixPackageName = "response") {
   const packageName = `${Config.javaBasePackage}.dto.${prefixPackageName}`;
 
+  let existLocalDateTime = false;
+  let existLocalDate = false;
   let existJsonProperty = false;
   let existNotNullColumn = false;
   let existNotBlankColumn = false;
@@ -530,6 +543,12 @@ async function getResponseDtoEjsParameter(mainTableName, columnList, prefixPacka
       }
     }
 
+    if (java_type === "LocalDateTime") {
+      existLocalDateTime = true;
+    } else if (java_type === "LocalDate") {
+      existLocalDate = true;
+    }
+
     if (isFirstLowerSecondUpper(camel_case)) {
       existJsonProperty = true;
       dtoMembers = dtoMembers + `\t@JsonProperty("${camel_case}")\n`;
@@ -549,7 +568,7 @@ async function getResponseDtoEjsParameter(mainTableName, columnList, prefixPacka
     console.log(e);
   }
 
-  return { packageName, tableDescription, entityName, existJsonProperty, existNotNullColumn, existNotBlankColumn, dtoMembers };
+  return { packageName, tableDescription, entityName, existLocalDateTime, existLocalDate, existJsonProperty, existNotNullColumn, existNotBlankColumn, dtoMembers };
 }
 
 // ✅ 여러 개의 변수를 객체로 내보내기
