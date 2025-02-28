@@ -41,6 +41,7 @@ app.listen(port, () => {
 const resultDirectory = path.join(__dirname, "result");
 const resultBackendDirectory = path.join(__dirname, "result" + path.sep + "backend");
 const resultFrontendDirectory = path.join(__dirname, "result" + path.sep + "frontend");
+const resultSqlDirectory = path.join(__dirname, "result" + path.sep + "sql");
 if (!fs.existsSync(resultDirectory)) {
   fs.mkdirSync(resultDirectory);
 }
@@ -49,6 +50,9 @@ if (!fs.existsSync(resultBackendDirectory)) {
 }
 if (!fs.existsSync(resultFrontendDirectory)) {
   fs.mkdirSync(resultFrontendDirectory);
+}
+if (!fs.existsSync(resultSqlDirectory)) {
+  fs.mkdirSync(resultSqlDirectory);
 }
 
 // Config log print
