@@ -3,7 +3,7 @@ const path = require("path");
 const _ = require("lodash");
 const fs = require("fs");
 const { SERVER_PORT } = process.env;
-const { tableSelectSql, columnSelectSql } = require("./sql-string");
+const { tableSelectSql, columnSelectSql, columnOnlySelectSql } = require("./sql-string");
 const Config = require("./config");
 const Code = require("./code");
 const { readTemplateFile, getEjsParameter, getGeneratorResult, createAllFile, createZipArchive, createFiledownloadByGeneratorDetailInfo } = require("./util");
@@ -76,12 +76,36 @@ app.get("/api/tables", async (req, res) => {
   });
 });
 
-/* 테이블명 기준으로 컬럼 정보 조회 : /api/columns */
+/* 테이블명 기준으로 컬럼 정보 조회 : /api/columns/:tableName */
 app.get("/api/columns/:tableName", async (req, res) => {
   const tableName = req.params.tableName;
   let columnList = [];
   try {
     const dbResponse = await db.raw(columnSelectSql, [tableName]);
+    columnList = dbResponse.rows;
+    console.log(columnList);
+  } catch (e) {
+    console.log(e);
+  }
+
+  res.json({
+    list: columnList,
+  });
+});
+
+/* 테이블명 N개 기준으로 컬럼 정보 조회 : /api/columns */
+app.post("/api/columns", async (req, res) => {
+  const tableNameList = req.body.tableNameList || [];
+
+  const applySqlString = `
+    ${columnOnlySelectSql}
+    WHERE table_name IN (${tableNameList.map(() => "?").join(", ")})
+    ORDER BY ordinal_position;
+`;
+
+  let columnList = [];
+  try {
+    const dbResponse = await db.raw(applySqlString, tableNameList);
     columnList = dbResponse.rows;
     console.log(columnList);
   } catch (e) {
@@ -143,4 +167,29 @@ app.get("/api/generate/:templateType/:tableName/fileCreate", async (req, res) =>
   }
 
   res.json({ success: true });
+});
+
+/*
+
+
+
+
+generateSQL(
+    ['department', 'org_detail', 'company'],
+    [
+        { table: 'org_detail', condition: 'department.cor_key = org_detail.org_key' },
+        { table: 'company', condition: 'department.company_id = company.id' }
+    ]
+);
+
+*/
+
+/* join-sql, select dto generate : file-create, result json */
+app.post("/api/generate/:templateType/generateJoinSql", async (req, res) => {
+  const templateType = req.params.templateType;
+  const tableNameList = req.body.tableNameList || [];
+  const joinColumnInfoList = req.body.joinColumnInfoList || [];
+  const generatorResult = {};
+
+  res.json(generatorResult);
 });
