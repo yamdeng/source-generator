@@ -15,6 +15,7 @@ const {
   createFiledownloadByGeneratorDetailInfo,
   convertTemplateSqlString,
   getResponseDtoEjsParameter,
+  getBodyRequestInfoByColumnList,
 } = require("./util");
 const db = require("./db");
 
@@ -105,6 +106,21 @@ app.get("/api/columns/:tableName", async (req, res) => {
   res.json({
     list: columnList,
   });
+});
+
+/* 테이블명 기준으로 컬럼 정보를 postman 응답값으로 변환 : /api/columns/:tableName/postman */
+app.get("/api/columns/:tableName/postman", async (req, res) => {
+  const tableName = req.params.tableName;
+  let columnList = [];
+  try {
+    const dbResponse = await db.raw(columnSelectSql, [tableName]);
+    columnList = dbResponse.rows;
+    console.log(columnList);
+  } catch (e) {
+    console.log(e);
+  }
+
+  res.json(getBodyRequestInfoByColumnList(columnList));
 });
 
 /* 테이블명 N개 기준으로 컬럼 정보 조회 : /api/columns */

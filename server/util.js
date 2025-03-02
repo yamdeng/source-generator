@@ -86,24 +86,7 @@ function getPostmanJsonStringByEjsParameter(ejsParameter) {
   };
 
   const requestList = [];
-  const requestBody = {};
-
-  let requestBodyApplyColumnList = columnList.filter((columnInfo) => {
-    const { column_name } = columnInfo;
-    if (Config.basicColumnList.find((basicColumnName) => basicColumnName === column_name)) {
-      return false;
-    }
-    return true;
-  });
-
-  requestBodyApplyColumnList.forEach((columnDbInfo) => {
-    const { camel_case, java_type } = columnDbInfo;
-    if (java_type === "String") {
-      requestBody[camel_case] = "";
-    } else {
-      requestBody[camel_case] = null;
-    }
-  });
+  const requestBody = getBodyRequestInfoByColumnList(columnList);
 
   // 상세 : get
   requestList.push({
@@ -580,6 +563,28 @@ async function getResponseDtoEjsParameter(mainTableName, columnList, prefixPacka
   return { packageName, tableDescription, entityName, existLocalDateTime, existLocalDate, existJsonProperty, existNotNullColumn, existNotBlankColumn, dtoMembers };
 }
 
+/* columnList(컬럼목록)을 기준으로 postman request 정보 추출 */
+function getBodyRequestInfoByColumnList(columnList) {
+  const requestBody = {};
+  let requestBodyApplyColumnList = columnList.filter((columnInfo) => {
+    const { column_name } = columnInfo;
+    if (Config.basicColumnList.find((basicColumnName) => basicColumnName === column_name)) {
+      return false;
+    }
+    return true;
+  });
+
+  requestBodyApplyColumnList.forEach((columnDbInfo) => {
+    const { camel_case, java_type } = columnDbInfo;
+    if (java_type === "String") {
+      requestBody[camel_case] = "";
+    } else {
+      requestBody[camel_case] = null;
+    }
+  });
+  return requestBody;
+}
+
 // ✅ 여러 개의 변수를 객체로 내보내기
 module.exports = {
   readTemplateFile,
@@ -597,4 +602,5 @@ module.exports = {
   isFirstLowerSecondUpper,
   getTableAlias,
   getResponseDtoEjsParameter,
+  getBodyRequestInfoByColumnList,
 };
