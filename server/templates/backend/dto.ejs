@@ -2,7 +2,6 @@ package <%= packageName %>.dto;
 
 <% if(existLocalDateTime) { %>import java.time.LocalDateTime;<% } %>
 <% if(existLocalDate) { %>import java.time.LocalDate;<% } %>
-
 import <%= packageName %>.common.dto.CommonDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 <% if(existJsonProperty) { %>import com.fasterxml.jackson.annotation.JsonProperty;<% } %>

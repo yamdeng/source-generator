@@ -49,7 +49,7 @@
   </update>
 
   <!-- <%= tableName %> delete -->
-  <delete id="delete" parameterType="string">
+  <delete id="delete" parameterType="String">
     DELETE
       FROM <%= tableName %>
      WHERE 1=1<%= primaryKeyConditions %>
