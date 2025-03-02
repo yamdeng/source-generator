@@ -87,7 +87,16 @@ function getPostmanJsonStringByEjsParameter(ejsParameter) {
 
   const requestList = [];
   const requestBody = {};
-  columnList.forEach((columnDbInfo, columnListIndex) => {
+
+  let requestBodyApplyColumnList = columnList.filter((columnInfo) => {
+    const { column_name } = columnInfo;
+    if (Config.basicColumnList.find((basicColumnName) => basicColumnName === column_name)) {
+      return false;
+    }
+    return true;
+  });
+
+  requestBodyApplyColumnList.forEach((columnDbInfo) => {
     const { camel_case, java_type } = columnDbInfo;
     if (java_type === "String") {
       requestBody[camel_case] = "";
