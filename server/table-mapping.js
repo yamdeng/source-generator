@@ -96,7 +96,7 @@ const tableEntityMapping = {
   TAS_TMPSAVE: { entityName: "ApprovalTempSaveInfo", apiPath: "" },
   TAS_USER_ABSENCE: { entityName: "ApprovalUserAbsence", apiPath: "" },
   TAS_USER_ABSENCE_HISTORY: { entityName: "ApprovalUserAbsenceHistory", apiPath: "" },
-  TAS_USER_CONFIG: { entityName: "ApprovalUserConifg", apiPath: "" },
+  TAS_USER_CONFIG: { entityName: "ApprovalUserConfig", apiPath: "" },
   TAS_USER_DOC: { entityName: "ApprovalUserDoc", apiPath: "" },
   TAS_WT_MANAGEMENT: { entityName: "ApprovalWtManagement", apiPath: "" },
   TRS_DISTRIBUTION: { entityName: "RegistrationDistribution", apiPath: "" },
