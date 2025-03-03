@@ -1,3 +1,4 @@
+const { TEMPLATE_DEFAULT } = process.env;
 const fs = require("fs");
 const AdmZip = require("adm-zip");
 const path = require("path");
@@ -13,7 +14,11 @@ const db = require("./db");
 /* 서버 구동시 generatorFileMap 변수에 generatorKey, fileName 반영 */
 function readTemplateFile(generatorFileMap) {
   const templateFileList = Config.templateFileList;
-  templateFileList.forEach((templateFileInfo) => {
+  let applyTemplateFileList = templateFileList;
+  if (TEMPLATE_DEFAULT && TEMPLATE_DEFAULT === "Y") {
+    applyTemplateFileList = templateFileList.filter((info) => info.default);
+  }
+  applyTemplateFileList.forEach((templateFileInfo) => {
     const { generatorKey, fileName, templateType } = templateFileInfo;
     if (fileName) {
       const templateFilePath = path.join(__dirname, `templates/${templateType}/${fileName}`);
