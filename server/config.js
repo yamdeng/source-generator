@@ -73,6 +73,7 @@ const Config = {
     {
       generatorKey: Constant.GENERATE_TYPE_POSTMAN,
       templateType: Constant.TEMPLATE_TYPE_BACKEND,
+      default: true,
     },
   ],
   nowDateSqlString: "now()",
