@@ -1,5 +1,7 @@
 ### 제네레이터 TODO ###
 
+ #.sql 자동 generate 개선 필요
+
  #.화면면에서 전달받을 정보
   1.tableName
   2.templateType : 'backend', 'frontend'
