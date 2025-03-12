@@ -259,8 +259,14 @@ app.post("/api/generate/joinSql", async (req, res) => {
 
   // SELECT 문 생성
   const selectColumns = Object.entries(tableColumns)
-    .map(([table, columns]) => columns.map((col) => `    ${table}.${col.column} /* ${col.comment} */`).join(",\n"))
-    .join(",\n");
+    .map(([table, columns]) => columns.map((col) => `    ${table}.${col.column}, /* ${col.comment} */`).join("\n"))
+    .join("\n");
+
+  let lastCommaIndex = selectColumns.lastIndexOf(",");
+  let applySelectColumnsString = selectColumns;
+  if (lastCommaIndex !== -1) {
+    applySelectColumnsString = selectColumns.slice(0, lastCommaIndex) + selectColumns.slice(lastCommaIndex + 1);
+  }
 
   // JOIN 조건을 기반으로 FROM ~ JOIN 절 생성
   const fromTable = tableNameList[0]; // 첫 번째 테이블을 FROM으로 지정
@@ -269,7 +275,7 @@ app.post("/api/generate/joinSql", async (req, res) => {
   // 최종 SQL 생성
   const sql = `/* ${fromTable} select join column */
 SELECT 
-${selectColumns}
+${applySelectColumnsString}
 FROM ${fromTable}
 ${joinClauses};
 `;
