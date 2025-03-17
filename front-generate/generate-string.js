@@ -45,7 +45,7 @@ function <%= fileName %>() {
   const state = <%= storeName %>();
   const [columns, setColumns] = useState(
   CommonUtil.mergeColumnInfosByLocal([<% tableColumns.forEach((columnInfo)=> { %>
-      { field: "<%= columnInfo.column_name %>", headerName: "<%= columnInfo.column_comment %>" },<% }) %>
+      { key: "<%= columnInfo.column_name %>", dataIndex: "<%= columnInfo.column_name %>", title: "<%= columnInfo.column_comment %>" },<% }) %>
   ])
   );
   const { enterSearch, searchParam, list, goAddPage, changeSearchInput, initSearchInput, isExpandDetailSearch, toggleExpandDetailSearch, clear } = state;
@@ -1603,5 +1603,5 @@ module.exports = {
   formModalGenerateString: formModalGenerateString,
   formUseStateModalGenerateString: formUseStateModalGenerateString,
   detailModalGenerateString: detailModalGenerateString,
-  searchFormGenerateString: searchFormGenerateString
+  searchFormGenerateString: searchFormGenerateString,
 };
