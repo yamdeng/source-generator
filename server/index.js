@@ -294,5 +294,15 @@ ${joinClauses};
     finalResultString: sql,
   });
 
-  res.json({ sql: sql, tableColumns: tableColumns });
+  res.json({
+    sql: sql,
+    tableColumns: tableColumns,
+    tableComponentColumns: filteredList.map((info) => {
+      return {
+        key: info.camel_case,
+        dataIndex: info.camel_case,
+        title: info.column_comment,
+      };
+    }),
+  });
 });
