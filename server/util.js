@@ -280,10 +280,11 @@ async function getEjsParameter(tableName, checkedColumns) {
   }
 
   let existJsonProperty = false;
+  let existJsonFormat = false;
 
   // columnList 속성 재반영
   columnList.forEach((columnDbInfo) => {
-    const { camel_case } = columnDbInfo;
+    const { camel_case, java_type } = columnDbInfo;
     // 첫번째 문자가 소문자이고 두번째 문자가 대문자인지 확인
     if (isFirstLowerSecondUpper(camel_case)) {
       columnDbInfo.isFirstLowerSecondUpper = true;
@@ -369,8 +370,12 @@ async function getEjsParameter(tableName, checkedColumns) {
 
     if (java_type === "LocalDateTime") {
       existLocalDateTime = true;
+      existJsonFormat = true;
+      dtoMembers = dtoMembers + `\t@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")\n`;
     } else if (java_type === "LocalDate") {
       existLocalDate = true;
+      existJsonFormat = true;
+      dtoMembers = dtoMembers + `\t@JsonFormat(pattern = "yyyy-MM-dd")\n`;
     }
 
     if (isFirstLowerSecondUpper) {
@@ -419,6 +424,7 @@ async function getEjsParameter(tableName, checkedColumns) {
     existLocalDateTime: existLocalDateTime,
     existLocalDate: existLocalDate,
     existJsonProperty: existJsonProperty,
+    existJsonFormat: existJsonFormat,
     existNotNullColumn: existNotNullColumn,
     existNotBlankColumn: existNotBlankColumn,
     apiRootPath: Config.apiRootPath,
@@ -514,6 +520,7 @@ async function getResponseDtoEjsParameter(mainTableName, columnList, prefixPacka
   let existLocalDateTime = false;
   let existLocalDate = false;
   let existJsonProperty = false;
+  let existJsonFormat = false;
   let existNotNullColumn = false;
   let existNotBlankColumn = false;
   let dtoMembers = "";
@@ -540,15 +547,19 @@ async function getResponseDtoEjsParameter(mainTableName, columnList, prefixPacka
       }
     }
 
-    if (java_type === "LocalDateTime") {
-      existLocalDateTime = true;
-    } else if (java_type === "LocalDate") {
-      existLocalDate = true;
-    }
-
     if (isFirstLowerSecondUpper(camel_case)) {
       existJsonProperty = true;
       dtoMembers = dtoMembers + `\t@JsonProperty("${camel_case}")\n`;
+    }
+
+    if (java_type === "LocalDateTime") {
+      existLocalDateTime = true;
+      existJsonFormat = true;
+      dtoMembers = dtoMembers + `\t@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")\n`;
+    } else if (java_type === "LocalDate") {
+      existLocalDate = true;
+      existJsonFormat = true;
+      dtoMembers = dtoMembers + `\t@JsonFormat(pattern = "yyyy-MM-dd")\n`;
     }
 
     dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
@@ -565,7 +576,7 @@ async function getResponseDtoEjsParameter(mainTableName, columnList, prefixPacka
     console.log(e);
   }
 
-  return { packageName, tableDescription, entityName, existLocalDateTime, existLocalDate, existJsonProperty, existNotNullColumn, existNotBlankColumn, dtoMembers };
+  return { packageName, tableDescription, entityName, existLocalDateTime, existLocalDate, existJsonProperty, existJsonFormat, existNotNullColumn, existNotBlankColumn, dtoMembers };
 }
 
 /* columnList(컬럼목록)을 기준으로 postman request 정보 추출 */
