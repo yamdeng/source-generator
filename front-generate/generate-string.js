@@ -354,8 +354,7 @@ function <%= fileName %>() {
                 name="<%= columnInfo.column_name %>"
                 label="<%= columnInfo.column_comment %>"
                 value={<%= columnInfo.column_name %>}
-                onChange={(value, userId) => {
-                  // TODO : value가 object 형이여서 추가 처리가 필요함
+                onChange={(value) => {
                   changeInput('<%= columnInfo.column_name %>', value)
                 }}
                 errorMessage={errors.<%= columnInfo.column_name %>}
@@ -366,8 +365,7 @@ function <%= fileName %>() {
                 name="<%= columnInfo.column_name %>"
                 label="<%= columnInfo.column_comment %>"
                 value={<%= columnInfo.column_name %>}
-                onChange={(value, deptCd) => {
-                  // TODO : value가 object 형이여서 추가 처리가 필요함
+                onChange={(value) => {
                   changeInput('<%= columnInfo.column_name %>', value)
                 }}
                 errorMessage={errors.<%= columnInfo.column_name %>}
@@ -392,7 +390,6 @@ function <%= fileName %>() {
                 fileGroupSeq={<%= columnInfo.column_name %>}
                 workScope={'업무구문(A,O,S)'}
                 updateFileGroupSeq={(newFileGroupSeq) => {
-                  // TODO : newFileGroupSeq를 handle
                   changeInput('fileGroupSeq', newFileGroupSeq);
                 }}
               /><% } else if(columnInfo.componentType === 'tree-select'){ %>
@@ -811,8 +808,7 @@ function <%= fileName %>(props) {
                           name="<%= columnInfo.column_name %>"
                           label="<%= columnInfo.column_comment %>"
                           value={<%= columnInfo.column_name %>}
-                          onChange={(value, userId) => {
-                            // TODO : value가 object 형이여서 추가 처리가 필요함
+                          onChange={(value) => {
                             changeInput('<%= columnInfo.column_name %>', value)
                           }}
                           errorMessage={errors.<%= columnInfo.column_name %>}
@@ -823,8 +819,7 @@ function <%= fileName %>(props) {
                           name="<%= columnInfo.column_name %>"
                           label="<%= columnInfo.column_comment %>"
                           value={<%= columnInfo.column_name %>}
-                          onChange={(value, deptCd) => {
-                            // TODO : value가 object 형이여서 추가 처리가 필요함
+                          onChange={(value) => {
                             changeInput('<%= columnInfo.column_name %>', value)
                           }}
                           errorMessage={errors.<%= columnInfo.column_name %>}
@@ -849,7 +844,6 @@ function <%= fileName %>(props) {
                           fileGroupSeq={<%= columnInfo.column_name %>}
                           workScope={'업무구문(A,O,S)'}
                           updateFileGroupSeq={(newFileGroupSeq) => {
-                            // TODO : newFileGroupSeq를 handle
                             changeInput('fileGroupSeq', newFileGroupSeq);
                           }}
                         /><% } else if(columnInfo.componentType === 'tree-select'){ %>
@@ -1095,8 +1089,7 @@ function <%= fileName %>(props) {
                           name="<%= columnInfo.column_name %>"
                           label="<%= columnInfo.column_comment %>"
                           value={<%= columnInfo.column_name %>}
-                          onChange={(value, userId) => {
-                            // TODO : value가 object 형이여서 추가 처리가 필요함
+                          onChange={(value) => {
                             changeInput('<%= columnInfo.column_name %>', value)
                           }}
                           errorMessage={errors.<%= columnInfo.column_name %>}
@@ -1107,7 +1100,7 @@ function <%= fileName %>(props) {
                           name="<%= columnInfo.column_name %>"
                           label="<%= columnInfo.column_comment %>"
                           value={<%= columnInfo.column_name %>}
-                          onChange={(value, deptCd) => {
+                          onChange={(value) => {
                             // TODO : value가 object 형이여서 추가 처리가 필요함
                             changeInput('<%= columnInfo.column_name %>', value)
                           }}
@@ -1133,7 +1126,6 @@ function <%= fileName %>(props) {
                           fileGroupSeq={<%= columnInfo.column_name %>}
                           workScope={'업무구문(A,O,S)'}
                           updateFileGroupSeq={(newFileGroupSeq) => {
-                            // TODO : newFileGroupSeq를 handle
                             changeInput('fileGroupSeq', newFileGroupSeq);
                           }}
                         /><% } else if(columnInfo.componentType === 'tree-select'){ %>
@@ -1388,16 +1380,14 @@ function <%= fileName %>() {
                 <AppUserSelectInput
                   label="<%= columnInfo.column_comment %>"
                   value={<%= columnInfo.column_name %>}
-                  onChange={(value, userId) => {
-                    // TODO : value가 object 형이여서 추가 처리가 필요함
+                  onChange={(value) => {
                     changeSearchInput('<%= columnInfo.column_name %>', value)
                   }}
                 /><% } else if(columnInfo.componentType === 'dept-select-input'){ %>
                 <AppDeptSelectInput
                   label="<%= columnInfo.column_comment %>"
                   value={<%= columnInfo.column_name %>}
-                  onChange={(value, deptCd) => {
-                    // TODO : value가 object 형이여서 추가 처리가 필요함
+                  onChange={(value) => {
                     changeSearchInput('<%= columnInfo.column_name %>', value)
                   }}
                 /><% } else if(columnInfo.componentType === 'auto-complete'){ %>
@@ -1534,16 +1524,14 @@ function <%= fileName %>() {
               <AppUserSelectInput
                 label="<%= columnInfo.column_comment %>"
                 value={<%= columnInfo.column_name %>}
-                onChange={(value, userId) => {
-                  // TODO : value가 object 형이여서 추가 처리가 필요함
+                onChange={(value) => {
                   changeSearchInput('<%= columnInfo.column_name %>', value)
                 }}
               /><% } else if(columnInfo.componentType === 'dept-select-input'){ %>
               <AppDeptSelectInput
                 label="<%= columnInfo.column_comment %>"
                 value={<%= columnInfo.column_name %>}
-                onChange={(value, deptCd) => {
-                  // TODO : value가 object 형이여서 추가 처리가 필요함
+                onChange={(value) => {
                   changeSearchInput('<%= columnInfo.column_name %>', value)
                 }}
               /><% } else if(columnInfo.componentType === 'auto-complete'){ %>
