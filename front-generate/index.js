@@ -494,7 +494,7 @@ function converColumnList(columnList) {
         info.yupType = yupType + "().required()";
       }
     } else {
-      info.yupType = yupType + "()" + (info.is_nullable !== "YES" ? ".required()" : "");
+      info.yupType = yupType + "()" + (info.is_nullable !== "YES" ? ".required()" : ".nullable()");
     }
     info.formInitValue = formInitValue;
 
