@@ -410,9 +410,6 @@ function <%= fileName %>() {
   const {
     detailInfo,
     getDetail,
-    formType,
-    cancel,
-    goFormPage,
     clear } =
     <%= storeName %>();
   const { <% tableColumns.forEach((columnInfo)=> { %> <%= columnInfo.column_name %>,<% }) %> } = detailInfo;
@@ -435,7 +432,7 @@ function <%= fileName %>() {
           <div className="key-value-wrap two-row "><% tableColumnMultiArray.forEach((rootArray)=> { %><% rootArray.forEach((columnInfo)=> { %>
             <div className="key-value-item column">
               <p className="key"><%= columnInfo.column_comment %></p>
-              <p className="value"><%= columnInfo.column_name %></p>
+              <p className="value">{<%= columnInfo.column_name %>}</p>
             </div><% }) %><% }) %>
           </div>
         </AppAreaDirect>
@@ -452,10 +449,10 @@ export default <%= fileName %>;
 
 const detailViewGenerateNoStoreString = `import { useEffect, useState } from 'react';
 import AppNavigation from '@/components/common/AppNavigation';
+import AppAreaDirect from '@/components/common/AppAreaDirect';
+import AppButton from '@/components/common/AppButton';
 import { useParams } from 'react-router-dom';
 import ApiService from '@/services/ApiService';
-import { Viewer } from '@toast-ui/react-editor';
-import AppFileAttach from '@/components/common/AppFileAttach';
 
 /* TODO : 컴포넌트 이름을 확인해주세요 */
 function <%= fileName %>() {
@@ -487,43 +484,19 @@ function <%= fileName %>() {
       <div className="conts-title">
         <h2>TODO : 헤더 타이틀</h2>
       </div>
-      <div className="eidtbox"> <% tableColumnMultiArray.forEach((rootArray)=> { %>
-        <div className="<% if (checkedMultiColumn) { %>form-table line<% } else { %>form-table<% } %>"><% rootArray.forEach((columnInfo)=> { %>
-          <div className="<% if (checkedMultiColumn) { %>form-cell wid50<% } else { %>form-cell wid100<% } %>">
-            <div className="form-group wid100">
-              <div className="box-view-list">
-                <ul className="view-list">
-                  <li className="accumlate-list">
-                    <label className="t-label">                        
-                      <%= columnInfo.column_comment %>
-                    </label><% if (columnInfo.componentType === 'file') { %>
-                    <span className="text-desc-type1">
-                        <AppFileAttach mode="view" fileGroupSeq={<%= columnInfo.column_name %>} workScope={'업무구문(A,O,S)'} onlyImageUpload={false} />
-                    </span><% } else if(columnInfo.componentType === 'editor') { %>
-                    <span className="text-desc-type1">
-                        <Viewer initialValue={<%= columnInfo.column_name %>} />
-                    </span><% } else { %>
-                    <span className="text-desc-type1">{<%= columnInfo.column_name %>}</span><% } %>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div><% }) %>
-        </div>
-        <hr className="<% if (checkedMultiColumn) { %>line dp-n<% } else { %>line<% } %>"></hr>
-        <% }) %>        
-      </div>
+      <AppAreaDirect direction="row" gap={0} align="flex-start">
+        <AppAreaDirect direction="column" gap={20}>
+          <div className="key-value-wrap two-row "><% tableColumnMultiArray.forEach((rootArray)=> { %><% rootArray.forEach((columnInfo)=> { %>
+            <div className="key-value-item column">
+              <p className="key"><%= columnInfo.column_comment %></p>
+              <p className="value">{<%= columnInfo.column_name %>}</p>
+            </div><% }) %><% }) %>
+          </div>
+        </AppAreaDirect>
+      </AppAreaDirect>
       {/* 하단 버튼 영역 */}
       <div className="content_btns">
-        <button className="btn_text text_color_neutral-10 btn_confirm" onClick={cancel}>
-          목록으로
-        </button>
-        <button
-          className="btn_text text_color_darkblue-100 btn_close"
-          onClick={goFormPage}
-        >
-          수정
-        </button>
+        <AppButton size="large" value="저장" />
       </div>
     </>
   );
@@ -531,11 +504,12 @@ function <%= fileName %>() {
 export default <%= fileName %>;
 `;
 
-const formModalGenerateString = `import { useEffect } from 'react';
-import Modal from 'react-modal';<% if(checkedInnerFormStore) { %>
-import { create } from "zustand";
+const formModalGenerateString = `import { useEffect } from 'react';<% importList.forEach((importString)=> { %>
+<%- importString %><% }) %>
 import AppAreaDirect from "@/components/common/AppAreaDirect";
 import AppButton from "@/components/common/AppButton";
+import Modal from 'react-modal';<% if(checkedInnerFormStore) { %>
+import { create } from "zustand";
 import { formBaseState, createFormSliceYup } from "@/stores/slice/formSlice";
 import * as yup from "yup";<% } %>
 <% if(checkedInnerFormStore) { %>
@@ -578,7 +552,7 @@ const <%= storeName %> = create<any>((set, get) => ({
 import <%= storeName %> from '@/stores/guide/<%= storeName %>';
 <% } %>
 
-/* TODO : 컴포넌트 이름을 확인해주세요 */
+/* TODO : 컴포넌트 이름을 확인해주세요3 */
 function <%= fileName %>(props) {
   const { isOpen, closeModal } = props;
 
@@ -594,7 +568,6 @@ function <%= fileName %>(props) {
     formValue,
     detailInfo,
     save,
-    remove,
     cancel,
     clear } =
     <%= storeName %>();
@@ -614,13 +587,13 @@ function <%= fileName %>(props) {
         isOpen={isOpen}
         ariaHideApp={false}
         overlayClassName={'alert-modal-overlay'}
-        className={'list-common-modal-content'}
+        className={'middle-modal-content'}
         onRequestClose={() => {
           closeModal();
         }}
       >
         <div className="popup-container">
-          <h3 className="pop_title">TODO : 모달 타이틀</h3>
+          <h3 className="pop_title">{formType === 'ADD' ? '등록' : '수정'}</h3>
           <div className="pop_cont">
             <div className="content-border-box">
               <AppAreaDirect direction="column" gap={10} parentLine={true}><% tableColumnMultiArray.forEach((rootArray)=> { %>
@@ -802,7 +775,7 @@ function <%= fileName %>(props) {
           {/* 하단 버튼 영역 */}
           <div className="pop_btns">
             <AppButton size="large" value="취소" variant="lower" onClick={closeModal} />
-            <AppButton size="large" value="확인" onClick={closeModal} />
+            <AppButton size="large" value="확인" onClick={save} />
           </div>
           <span className="pop_close" onClick={closeModal}>
             X
@@ -885,7 +858,7 @@ function <%= fileName %>(props) {
         isOpen={isOpen}
         ariaHideApp={false}
         overlayClassName={'alert-modal-overlay'}
-        className={'list-common-modal-content'}
+        className={'middle-modal-content'}
         onRequestClose={() => {
           closeModal();
         }}
@@ -1075,7 +1048,7 @@ function <%= fileName %>(props) {
             <AppButton size="large" value="취소" variant="lower" onClick={closeModal} />
             <AppButton size="large" value="확인" onClick={closeModal} />
           </div>
-          <span className="pop_close" onClick={closeModal}>
+          <span className="pop_close" onClick={save}>
             X
           </span>
         </div>
@@ -1088,7 +1061,7 @@ export default <%= fileName %>;
 
 const detailModalGenerateString = `import { useEffect } from 'react';
 import Modal from 'react-modal';
-import AppNavigation from '@/components/common/AppNavigation';
+import AppButton from '@/components/common/AppButton';
 import AppAreaDirect from '@/components/common/AppAreaDirect';
 
 /* TODO : 컴포넌트 이름을 확인해주세요 */
@@ -1102,9 +1075,6 @@ function <%= fileName %>(props) {
   const {
     detailInfo,
     getDetail,
-    formType,
-    cancel,
-    goFormPage,
     clear } =
     <%= storeName %>();
   const { <% tableColumns.forEach((columnInfo)=> { %> <%= columnInfo.column_name %>,<% }) %> } = detailInfo;
@@ -1121,7 +1091,7 @@ function <%= fileName %>(props) {
         isOpen={isOpen}
         ariaHideApp={false}
         overlayClassName={'alert-modal-overlay'}
-        className={'list-common-modal-content'}
+        className={'middle-modal-content'}
         onRequestClose={() => {
           closeModal();
         }}
@@ -1135,7 +1105,7 @@ function <%= fileName %>(props) {
                   <div className="key-value-wrap two-row "><% tableColumnMultiArray.forEach((rootArray)=> { %><% rootArray.forEach((columnInfo)=> { %>
                     <div className="key-value-item column">
                       <p className="key"><%= columnInfo.column_comment %></p>
-                      <p className="value"><%= columnInfo.column_name %></p>
+                      <p className="value">{<%= columnInfo.column_name %>}</p>
                     </div><% }) %><% }) %>
                   </div>
                 </AppAreaDirect>
