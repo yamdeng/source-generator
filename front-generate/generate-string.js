@@ -1,10 +1,10 @@
 const listComponentGenerateString = `import AppTable from "@/components/common/AppTable";
 import AppNavigation from '@/components/common/AppNavigation';
+import AppTableBaseSearchInput from '@/components/common/AppTableBaseSearchInput';
 import { createListSlice, listBaseState } from "@/stores/slice/listSlice";
 import { useEffect, useState, useCallback } from "react";
 import CommonUtil from '@/utils/CommonUtil';
 import { create } from "zustand";
-import AppSearchInput from '@/components/common/AppSearchInput';
 
 const initListData = {
   ...listBaseState,
@@ -62,61 +62,22 @@ function <%= fileName %>() {
   }, []);
 
   return (
-    <>
+    <div>
       <AppNavigation />
       {/* TODO : 헤더 영역입니다 */}
       <div className="conts-title">
         <h2>TODO: 타이틀</h2>
       </div>
       {/* TODO : 검색 input 영역입니다 */}
-      <div className="boxForm">
-        <div className={isExpandDetailSearch ? 'area-detail active' : 'area-detail'}>
-          <div className="form-table">
-            <div className="form-cell wid50">
-              <div className="form-group wid100">
-                <AppSearchInput 
-                  label="이름"
-                  value={searchWord}
-                  onChange={(value) => {
-                    changeSearchInput('searchWord', value);
-                  }}
-                  search={enterSearch}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="btn-area">
-            <button type="button" name="button" className="btn-sm btn_text btn-darkblue-line" onClick={enterSearch}>
-              조회
-            </button>
-            <button type="button" name="button" className="btn-sm btn_text btn-darkblue-line" onClick={initSearchInput}>
-              초기화
-            </button>
-          </div>          
-        </div>
-        <button
-            type="button"
-            name="button"
-            className={isExpandDetailSearch ? 'arrow button _control active' : 'arrow button _control'}
-            onClick={toggleExpandDetailSearch}
-          >
-          <span className="hide">접기</span>
-        </button>
-      </div>
       <AppTable
         rowData={list}
         columns={columns}
         setColumns={setColumns}
         store={state}
         handleRowDoubleClick={handleRowDoubleClick}
+        searchInputComponent={<AppTableBaseSearchInput store={store} />}
       />
-      <div className="contents-btns">
-        {/* TODO : 버튼 목록 정의 */}
-        <button type="button" name="button" className="btn_text text_color_neutral-10 btn_confirm" onClick={goAddPage}>
-          신규
-        </button>
-      </div>
-    </>
+    </div>
   );
 }
 
