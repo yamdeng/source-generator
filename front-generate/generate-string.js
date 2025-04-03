@@ -400,6 +400,8 @@ export default <%= fileName %>;
 
 const detailViewGenerateString = `import { useEffect } from 'react';
 import AppNavigation from '@/components/common/AppNavigation';
+import AppAreaDirect from '@/components/common/AppAreaDirect';
+import AppButton from '@/components/common/AppButton';
 import { useParams } from 'react-router-dom';
 
 /* TODO : store 경로를 변경해주세요. */
@@ -1090,8 +1092,8 @@ export default <%= fileName %>;
 
 const detailModalGenerateString = `import { useEffect } from 'react';
 import Modal from 'react-modal';
-import { Viewer } from '@toast-ui/react-editor';
-import AppFileAttach from '@/components/common/AppFileAttach';
+import AppNavigation from '@/components/common/AppNavigation';
+import AppAreaDirect from '@/components/common/AppAreaDirect';
 
 /* TODO : 컴포넌트 이름을 확인해주세요 */
 function <%= fileName %>(props) {
@@ -1130,46 +1132,24 @@ function <%= fileName %>(props) {
       >
         <div className="popup-container">
           <h3 className="pop_title">TODO : 모달 타이틀</h3>
-          <div className="pop_full_cont_box">
-            <div className="pop_flex_group">
-              <div className="pop_cont_form">
-                <div className="editbox"> <% tableColumnMultiArray.forEach((rootArray)=> { %>
-                  <div className="<% if (checkedMultiColumn) { %>form-table line<% } else { %>form-table<% } %>"><% rootArray.forEach((columnInfo)=> { %>
-                    <div className="<% if (checkedMultiColumn) { %>form-cell wid50<% } else { %>form-cell wid100<% } %>">
-                      <div className="form-group wid100">
-                        <div className="box-view-list">
-                          <ul className="view-list">
-                            <li className="accumlate-list">
-                              <label className="t-label">                        
-                                <%= columnInfo.column_comment %>
-                              </label><% if (columnInfo.componentType === 'file') { %>
-                              <span className="text-desc-type1">
-                                  <AppFileAttach mode="view" fileGroupSeq={<%= columnInfo.column_name %>} workScope={'업무구문(A,O,S)'} onlyImageUpload={false} />
-                              </span><% } else if(columnInfo.componentType === 'editor') { %>
-                              <span className="text-desc-type1">
-                                  <Viewer initialValue={<%= columnInfo.column_name %>} />
-                              </span><% } else { %>
-                              <span className="text-desc-type1">{<%= columnInfo.column_name %>}</span><% } %>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div><% }) %>
+          <div className="pop_cont">
+            <div className="content-border-box">
+              <AppAreaDirect direction="row" gap={0} align="flex-start">
+                <AppAreaDirect direction="column" gap={20}>
+                  <div className="key-value-wrap two-row "><% tableColumnMultiArray.forEach((rootArray)=> { %><% rootArray.forEach((columnInfo)=> { %>
+                    <div className="key-value-item column">
+                      <p className="key"><%= columnInfo.column_comment %></p>
+                      <p className="value"><%= columnInfo.column_name %></p>
+                    </div><% }) %><% }) %>
                   </div>
-                  <hr className="<% if (checkedMultiColumn) { %>line dp-n<% } else { %>line<% } %>"></hr>
-                  <% }) %>
-                </div>
-              </div>
+                </AppAreaDirect>
+              </AppAreaDirect>
             </div>
           </div>
           {/* 하단 버튼 영역 */}
           <div className="pop_btns">
-            <button className="btn_text text_color_neutral-90 btn_close" onClick={closeModal}>
-              취소
-            </button>
-            <button className="btn_text text_color_neutral-10 btn_confirm" onClick={closeModal}>
-              확인
-            </button>
+            <AppButton size="large" value="취소" variant="lower" onClick={closeModal} />
+            <AppButton size="large" value="확인" onClick={closeModal} />
           </div>
           <span className="pop_close" onClick={closeModal}>
             X
