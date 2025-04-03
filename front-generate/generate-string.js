@@ -1162,300 +1162,149 @@ function <%= fileName %>(props) {
 export default <%= fileName %>;
 `;
 
-const searchFormGenerateString = `import AppTable from "@/components/common/AppTable";
-import { createListSlice, listBaseState } from "@/stores/slice/listSlice";<% importList.forEach((importString)=> { %>
-<%- importString %><% }) %>
+const searchFormGenerateString = `import AppAreaDirect from "@/components/common/AppAreaDirect";
+import AppCommonSearchLayer from "@/components/common/AppCommonSearchLayer";
 
-function <%= fileName %>() {
-  const state = <%= storeName %>();
-
+function <%= fileName %>(props) {
+  const { store } = props;
+  const { changeSearchInput, searchParam } = store;
   const { <% tableColumns.forEach((columnInfo)=> { %> <%= columnInfo.column_name %>,<% }) %> } = searchParam;
 
+  const childComponent = (
+    <AppAreaDirect direction="column" gap={10}>
+      <AppAreaDirect direction="column" gap={10} parentLine={true}><% tableColumnMultiArray.forEach((rootArray)=> { %><% rootArray.forEach((columnInfo)=> { %>
+        <AppAreaDirect direction="column" gap={10} uniform={true}>
+          <AppAreaDirect direction="row" gap={10} uniform={true}><% if (columnInfo.componentType === 'search-input') { %>
+            <AppSearchInput 
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+              search={enterSearch}
+            /><% } else if(columnInfo.componentType === 'number'){ %>
+            <AppTextInput
+              inputType="number"
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } else if(columnInfo.componentType === 'select'){ %>
+            <AppSelect
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+              options={[]}
+            /><% } else if(columnInfo.componentType === 'code'){ %>
+            <AppCodeSelect
+              codeGrpId="<%= columnInfo.codeGroupId %>"
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } else if(columnInfo.componentType === 'datepicker'){ %>
+            <AppDatePicker
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } else if(columnInfo.componentType === 'rangepicker'){ %>
+            <AppRangeDatePicker
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } else if(columnInfo.componentType === 'timepicker'){ %>
+            <AppTimePicker
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } else if(columnInfo.componentType === 'checkbox'){ %>              
+            <AppCheckbox
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } else if(columnInfo.componentType === 'checkboxgroup'){ %>
+            <AppCheckboxGroup
+              label="<%= columnInfo.column_comment %>"
+              options={[]}
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } else if(columnInfo.componentType === 'radio'){ %>
+            <AppRadioGroup
+              label="<%= columnInfo.column_comment %>"
+              options={[]}
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } else if(columnInfo.componentType === 'user-select-input'){ %>
+            <AppUserSelectInput
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value)
+              }}
+            /><% } else if(columnInfo.componentType === 'dept-select-input'){ %>
+            <AppDeptSelectInput
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value)
+              }}
+            /><% } else if(columnInfo.componentType === 'auto-complete'){ %>
+            <AppAutoComplete
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              apiUrl="TODO: apiUrl"
+              labelKey="TODO: labelKey"
+              valueKey="TODO: valueKey"
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } else if(columnInfo.componentType === 'tree-select'){ %>
+            <AppTreeSelect
+              label="<%= columnInfo.column_comment %>"
+              fieldNames={{ label: '라벨키', value: 'value키' }}
+              treeData={[]}
+              treeDefaultExpandAll={false}
+              treeCheckable={false}
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } else { %>
+            <AppTextInput
+              label="<%= columnInfo.column_comment %>"
+              value={<%= columnInfo.column_name %>}
+              onChange={(value) => {
+                changeSearchInput('<%= columnInfo.column_name %>', value);
+              }}
+            /><% } %>
+          </AppAreaDirect>
+        </AppAreaDirect><% }) %><% }) %>
+      </AppAreaDirect>
+      <AppAreaDirect direction="row" gap={10} uniform={false} className="justify-content-end">
+        <AppButton value="검색" size="large" />
+        <AppButton value="초기화" size="large" variant="secondary" />
+      </AppAreaDirect>
+    </AppAreaDirect>
+  );
+  
   return (
-    <>
-      {/* TODO : 검색 input 영역입니다 */}
-      <% if (checkedSearchFormDetail) { %>
-      <div className="boxForm">
-        <div className={isExpandDetailSearch ? 'area-detail active' : 'area-detail'}><% tableColumnMultiArray.forEach((rootArray)=> { %>
-          <div className="form-table"><% rootArray.forEach((columnInfo)=> { %>
-            <div className="<% if (checkedMultiColumn) { %>form-cell wid50<% } else { %>form-cell wid100<% } %>">
-              <div className="<%= columnInfo.formGroupClassName %> wid100"><% if (columnInfo.componentType === 'search-input') { %>
-                <AppSearchInput 
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                  search={enterSearch}
-                /><% } else if(columnInfo.componentType === 'number'){ %>
-                <AppTextInput
-                  inputType="number"
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } else if(columnInfo.componentType === 'select'){ %>
-                <AppSelect
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                  options={[]}
-                /><% } else if(columnInfo.componentType === 'code'){ %>
-                <AppCodeSelect
-                  codeGrpId="<%= columnInfo.codeGroupId %>"
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } else if(columnInfo.componentType === 'datepicker'){ %>
-                <AppDatePicker
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } else if(columnInfo.componentType === 'rangepicker'){ %>
-                <AppRangeDatePicker
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } else if(columnInfo.componentType === 'timepicker'){ %>
-                <AppTimePicker
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } else if(columnInfo.componentType === 'checkbox'){ %>              
-                <AppCheckbox
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } else if(columnInfo.componentType === 'checkboxgroup'){ %>
-                <AppCheckboxGroup
-                  label="<%= columnInfo.column_comment %>"
-                  options={[]}
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } else if(columnInfo.componentType === 'radio'){ %>
-                <AppRadioGroup
-                  label="<%= columnInfo.column_comment %>"
-                  options={[]}
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } else if(columnInfo.componentType === 'user-select-input'){ %>
-                <AppUserSelectInput
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value)
-                  }}
-                /><% } else if(columnInfo.componentType === 'dept-select-input'){ %>
-                <AppDeptSelectInput
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value)
-                  }}
-                /><% } else if(columnInfo.componentType === 'auto-complete'){ %>
-                <AppAutoComplete
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  apiUrl="TODO: apiUrl"
-                  labelKey="TODO: labelKey"
-                  valueKey="TODO: valueKey"
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } else if(columnInfo.componentType === 'tree-select'){ %>
-                <AppTreeSelect
-                  label="<%= columnInfo.column_comment %>"
-                  fieldNames={{ label: '라벨키', value: 'value키' }}
-                  treeData={[]}
-                  treeDefaultExpandAll={false}
-                  treeCheckable={false}
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } else { %>
-                <AppTextInput
-                  label="<%= columnInfo.column_comment %>"
-                  value={<%= columnInfo.column_name %>}
-                  onChange={(value) => {
-                    changeSearchInput('<%= columnInfo.column_name %>', value);
-                  }}
-                /><% } %>
-              </div>
-            </div><% }) %>              
-          </div><% }) %>
-          <div className="btn-area">
-            <button type="button" name="button" className="btn-sm btn_text btn-darkblue-line">
-              조회
-            </button>
-            <button type="button" name="button" className="btn-sm btn_text btn-darkblue-line">
-              초기화
-            </button>
-          </div>      
-        </div>
-        <button
-            type="button"
-            name="button"
-            className={isExpandDetailSearch ? 'arrow button _control active' : 'arrow button _control'}
-            onClick={toggleExpandDetailSearch}
-          >
-          <span className="hide">접기</span>
-        </button>
-      </div>
-      <% } else { %>
-      <div className="boxForm"><% tableColumnMultiArray.forEach((rootArray)=> { %>
-        <div className="form-table"><% rootArray.forEach((columnInfo)=> { %>
-          <div className="<% if (checkedMultiColumn) { %>form-cell wid50<% } else { %>form-cell wid100<% } %>">
-            <div className="<%= columnInfo.formGroupClassName %> wid100"><% if (columnInfo.componentType === 'search-input') { %>
-              <AppSearchInput 
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-                search={enterSearch}
-              /><% } else if(columnInfo.componentType === 'number'){ %>
-              <AppTextInput
-                inputType="number"
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } else if(columnInfo.componentType === 'select'){ %>
-              <AppSelect
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-                options={[]}
-              /><% } else if(columnInfo.componentType === 'code'){ %>
-              <AppCodeSelect
-                codeGrpId="<%= columnInfo.codeGroupId %>"
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } else if(columnInfo.componentType === 'rangepicker'){ %>
-              <AppRangeDatePicker
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } else if(columnInfo.componentType === 'datepicker'){ %>
-              <AppDatePicker
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } else if(columnInfo.componentType === 'timepicker'){ %>
-              <AppTimePicker
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } else if(columnInfo.componentType === 'checkbox'){ %>              
-              <AppCheckbox
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } else if(columnInfo.componentType === 'checkboxgroup'){ %>
-              <AppCheckboxGroup
-                label="<%= columnInfo.column_comment %>"
-                options={[]}
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } else if(columnInfo.componentType === 'radio'){ %>
-              <AppRadioGroup
-                label="<%= columnInfo.column_comment %>"
-                options={[]}
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } else if(columnInfo.componentType === 'user-select-input'){ %>
-              <AppUserSelectInput
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value)
-                }}
-              /><% } else if(columnInfo.componentType === 'dept-select-input'){ %>
-              <AppDeptSelectInput
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value)
-                }}
-              /><% } else if(columnInfo.componentType === 'auto-complete'){ %>
-              <AppAutoComplete
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                apiUrl="TODO: apiUrl"
-                labelKey="TODO: labelKey"
-                valueKey="TODO: valueKey"
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } else if(columnInfo.componentType === 'tree-select'){ %>
-              <AppTreeSelect
-                label="<%= columnInfo.column_comment %>"
-                fieldNames={{ label: '라벨키', value: 'value키' }}
-                treeData={[]}
-                treeDefaultExpandAll={false}
-                treeCheckable={false}
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } else { %>
-              <AppTextInput
-                label="<%= columnInfo.column_comment %>"
-                value={<%= columnInfo.column_name %>}
-                onChange={(value) => {
-                  changeSearchInput('<%= columnInfo.column_name %>', value);
-                }}
-              /><% } %>
-            </div>
-          </div><% }) %>             
-        </div><% }) %>     
-        <div className="btn-area">
-          <button type="button" name="button" className="btn-sm btn_text btn-darkblue-line">
-            조회
-          </button>
-          <button type="button" name="button" className="btn-sm btn_text btn-darkblue-line">
-            초기화
-          </button>
-        </div> 
-      </div>
-      <% } %>      
-    </>
+    <AppCommonSearchLayer style={{ width: '250px' }} searchLayerCustomComponent={childComponent}></AppCommonSearchLayer>
   );
 }
 export default <%= fileName %>;
