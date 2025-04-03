@@ -42,15 +42,13 @@ const <%= storeName %> = create<any>((set, get) => ({
 }));
 
 function <%= fileName %>() {
-  const state = <%= storeName %>();
+  const store = <%= storeName %>();
   const [columns, setColumns] = useState(
   CommonUtil.mergeColumnInfosByLocal([<% tableColumns.forEach((columnInfo)=> { %>
       { key: "<%= columnInfo.column_name %>", dataIndex: "<%= columnInfo.column_name %>", title: "<%= columnInfo.column_comment %>" },<% }) %>
   ])
   );
-  const { enterSearch, searchParam, list, goAddPage, changeSearchInput, initSearchInput, isExpandDetailSearch, toggleExpandDetailSearch, clear } = state;
-  // TODO : 검색 파라미터 나열
-  const { searchWord } = searchParam;
+  const { enterSearch, list, clear } = store;
 
   const handleRowDoubleClick = useCallback((selectedInfo) => {
     // TODO : 더블클릭시 상세 페이지 또는 모달 페이지 오픈
@@ -73,7 +71,7 @@ function <%= fileName %>() {
         rowData={list}
         columns={columns}
         setColumns={setColumns}
-        store={state}
+        store={store}
         handleRowDoubleClick={handleRowDoubleClick}
         searchInputComponent={<AppTableBaseSearchInput store={store} />}
       />
@@ -186,9 +184,7 @@ function <%= fileName %>() {
     getDetail,
     formType,
     formValue,
-    isDirty,
     save,
-    remove,
     cancel,
     clear } =
     <%= storeName %>();
@@ -209,7 +205,7 @@ function <%= fileName %>() {
     <>
       <AppNavigation />
       <div className="conts-title">
-        <h2>TODO : 헤더 타이틀</h2>
+        <h2>{formType === 'ADD' ? '등록' : '수정'}</h2>
       </div>
       <div className="editbox">
         <AppAreaDirect direction="column" gap={10} parentLine={true}><% tableColumnMultiArray.forEach((rootArray)=> { %>
@@ -388,9 +384,9 @@ function <%= fileName %>() {
         </AppAreaDirect>
       </div>
       {/* 하단 버튼 영역 */}
-      <div className="contents-btns">
-        <AppButton value="저장" size="large" isFix={true} />
-        <AppButton value="취소" size="large" variant="lower" isFix={true} />
+      <div className="content_btns">
+        <AppButton value="저장" size="large" isFix={true} onClick={save} />
+        <AppButton value="취소" size="large" variant="lower" isFix={true} onClick={cancel} />
       </div>
     </>
   );
@@ -445,7 +441,7 @@ function <%= fileName %>() {
         </AppAreaDirect>
       </AppAreaDirect>
       {/* 하단 버튼 영역 */}
-      <div className="contents-btns">
+      <div className="content_btns">
         <AppButton size="large" value="저장" />
       </div>
     </div>
@@ -518,7 +514,7 @@ function <%= fileName %>() {
         <% }) %>        
       </div>
       {/* 하단 버튼 영역 */}
-      <div className="contents-btns">
+      <div className="content_btns">
         <button className="btn_text text_color_neutral-10 btn_confirm" onClick={cancel}>
           목록으로
         </button>
