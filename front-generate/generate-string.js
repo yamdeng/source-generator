@@ -102,6 +102,8 @@ const initFormValue = {
 const initFormData = {
   ...formBaseState,
 
+  initFormValue: { ...initFormValue },
+
   formApiPath: 'TODO : api path',
   baseRoutePath: 'TODO : UI route path',
   formName: '<%= formName %>',
@@ -150,6 +152,8 @@ const initFormValue = {<% tableColumns.forEach((columnInfo)=> { %>
 /* form 초기화 */
 const initFormData = {
   ...formBaseState,
+
+  initFormValue: { ...initFormValue },
 
   formApiPath: 'TODO : api path',
   baseRoutePath: 'TODO : UI route path',
@@ -539,6 +543,8 @@ const initFormValue = {<% tableColumns.forEach((columnInfo)=> { %>
 /* form 초기화 */
 const initFormData = {
   ...formBaseState,
+
+  initFormValue: { ...initFormValue },
 
   formApiPath: 'TODO : api path',
   baseRoutePath: 'TODO : UI route path',
