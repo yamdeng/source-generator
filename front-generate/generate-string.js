@@ -129,6 +129,7 @@ const formViewGenerateString = `import { useEffect } from 'react';
 import AppNavigation from '@/components/common/AppNavigation';
 import AppAreaDirect from '@/components/common/AppAreaDirect';
 import AppButton from '@/components/common/AppButton';
+import { FORM_TYPE_ADD } from '@/config/CommonConstant';
 import { useParams } from 'react-router-dom';<% importList.forEach((importString)=> { %>
 <%- importString %><% }) %><% if(checkedInnerFormStore) { %>
 import { create } from "zustand";
@@ -194,18 +195,28 @@ function <%= fileName %>() {
   const { detailId } = useParams();
 
   useEffect(() => {
-    if (detailId && detailId !== 'add') {
+    if (detailId && detailId !== FORM_TYPE_ADD) {
       getDetail(detailId);
     }
     return clear;
   }, []);
 
+  useEffect(() => {
+    if (detailId && detailId !== FORM_TYPE_ADD) {
+      getDetail(detailId);
+    }
+  }, [detailId]);
+
+  useEffect(() => {
+    return clear;
+  }, []);
+
 
   return (
-    <>
+    <div>
       <AppNavigation />
       <div className="conts-title">
-        <h2>{formType === 'ADD' ? '등록' : '수정'}</h2>
+        <h2>{formType === FORM_TYPE_ADD ? '등록' : '수정'}</h2>
       </div>
       <div className="editbox">
         <AppAreaDirect direction="column" gap={10} parentLine={true}><% tableColumnMultiArray.forEach((rootArray)=> { %>
@@ -388,7 +399,7 @@ function <%= fileName %>() {
         <AppButton value="저장" size="large" isFix={true} onClick={save} />
         <AppButton value="취소" size="large" variant="lower" isFix={true} onClick={cancel} />
       </div>
-    </>
+    </div>
   );
 }
 export default <%= fileName %>;
@@ -479,7 +490,7 @@ function <%= fileName %>() {
   }, []);
 
   return (
-    <>
+    <div>
       <AppNavigation />
       <div className="conts-title">
         <h2>TODO : 헤더 타이틀</h2>
@@ -498,7 +509,7 @@ function <%= fileName %>() {
       <div className="content_btns">
         <AppButton size="large" value="저장" />
       </div>
-    </>
+    </div>
   );
 }
 export default <%= fileName %>;
@@ -508,6 +519,7 @@ const formModalGenerateString = `import { useEffect } from 'react';<% importList
 <%- importString %><% }) %>
 import AppAreaDirect from "@/components/common/AppAreaDirect";
 import AppButton from "@/components/common/AppButton";
+import { FORM_TYPE_ADD } from '@/config/CommonConstant';
 import Modal from 'react-modal';<% if(checkedInnerFormStore) { %>
 import { create } from "zustand";
 import { formBaseState, createFormSliceYup } from "@/stores/slice/formSlice";
@@ -593,7 +605,7 @@ function <%= fileName %>(props) {
         }}
       >
         <div className="popup-container">
-          <h3 className="pop_title">{formType === 'ADD' ? '등록' : '수정'}</h3>
+          <h3 className="pop_title">{formType === FORM_TYPE_ADD ? '등록' : '수정'}</h3>
           <div className="pop_cont">
             <div className="content-border-box">
               <AppAreaDirect direction="column" gap={10} parentLine={true}><% tableColumnMultiArray.forEach((rootArray)=> { %>
