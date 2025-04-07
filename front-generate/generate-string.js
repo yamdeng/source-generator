@@ -544,6 +544,8 @@ const initFormValue = {<% tableColumns.forEach((columnInfo)=> { %>
 const initFormData = {
   ...formBaseState,
 
+  byPassSaveCancel: true,
+
   initFormValue: { ...initFormValue },
 
   formApiPath: 'TODO : api path',
