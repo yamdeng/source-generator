@@ -574,31 +574,33 @@ import <%= storeName %> from '@/stores/guide/<%= storeName %>';
 
 /* TODO : 컴포넌트 이름을 확인해주세요3 */
 function <%= fileName %>(props) {
-  const { isOpen, closeModal } = props;
-
-  // TODO : 목록에서 선택한 값을 그대로 이용할지 여부 결정
-  // const { detailInfo } = props;
+  const { isOpen, closeModal, ok, modalDetailId } = props;
 
   /* formStore state input 변수 */
-  const {
-    errors,
-    changeInput,
-    getDetail,
-    formType,
-    formValue,
-    detailInfo,
-    save,
-    cancel,
-    clear } =
+  const { errors, changeInput, getDetail, formType, formValue, save, clear } =
     <%= storeName %>();
 
   const { <% tableColumns.forEach((columnInfo)=> { %> <%= columnInfo.column_name %>,<% }) %> } = formValue;
 
+  const handleSave = () => {
+    save(ok);
+  };
+
   useEffect(() => {
-    // TODO : isOpen일 경우에 상세 api 호출 할지 결정 : if(isOpen)
-    // TODO : isOpen일 경우에 formValue를 넘겨준 값으로 셋팅할지 말지 : if(isOpen && detailInfo)
-    return clear;
-  }, [isOpen, detailInfo]);
+    if (isOpen) {
+      if (modalDetailId) {
+        getDetail(modalDetailId);
+      }
+    } else {
+      clear();
+    }
+  }, [isOpen, modalDetailId]);
+
+  useEffect(() => {
+    return () => {
+      clear();
+    };
+  }, []);
 
   return (
     <>
@@ -795,7 +797,7 @@ function <%= fileName %>(props) {
           {/* 하단 버튼 영역 */}
           <div className="pop_btns">
             <AppButton size="large" value="취소" variant="lower" onClick={closeModal} />
-            <AppButton size="large" value="확인" onClick={save} />
+            <AppButton size="large" value="확인" onClick={handleSave} />
           </div>
           <span className="pop_close" onClick={closeModal}>
             X
@@ -810,10 +812,12 @@ export default <%= fileName %>;
 
 const formUseStateModalGenerateString = `import { useEffect, useState } from 'react';
 import Modal from 'react-modal';
+import { FORM_TYPE_ADD, FORM_TYPE_UPDATE } from '@/config/CommonConstant';
 import * as yup from 'yup';
 import { useImmer } from 'use-immer';
 import AppAreaDirect from "@/components/common/AppAreaDirect";
 import AppButton from "@/components/common/AppButton";
+import ApiService from '@/services/ApiService';
 import CommonUtil from '@/utils/CommonUtil';<% importList.forEach((importString)=> { %>
 <%- importString %><% }) %>
 
@@ -832,10 +836,10 @@ const initFormValue = {<% tableColumns.forEach((columnInfo)=> { %>
 /* TODO : 컴포넌트 이름을 확인해주세요 */
 function <%= fileName %>(props) {
 
-  const { isOpen, closeModal, detailInfo, ok } = props;
+  const { isOpen, closeModal, modalDetailId, ok } = props;
   const [formValue, setFormValue] = useImmer({ ...initFormValue });
+  const [formType, setFormType] = useState(FORM_TYPE_ADD);
   const [errors, setErrors] = useState<any>({});
-  const [isDirty, setIsDirty] = useState(false);
 
   const { <% tableColumns.forEach((columnInfo)=> { %> <%= columnInfo.column_name %>,<% }) %> } = formValue;
 
@@ -843,15 +847,13 @@ function <%= fileName %>(props) {
     setFormValue((formValue) => {
       formValue[inputName] = inputValue;
     });
-    setIsDirty(true);
   };
 
   const save = async () => {
     const validateResult = await CommonUtil.validateYupForm(yupFormSchema, formValue);
     const { success, firstErrorFieldKey, errors } = validateResult;
     if (success) {
-      // TODO : 모달 최종 저장시 액션 정의
-      ok(formValue);
+      ok(formValue, formType, 'dutyKey');
     } else {
       setErrors(errors);
       if (formName + firstErrorFieldKey) {
@@ -860,16 +862,30 @@ function <%= fileName %>(props) {
     }
   };
 
+  const getDetail = async (detailId) => {
+    const apiResult = await ApiService.get('TODO : apipath/detailId');
+    const data = apiResult.data;
+    setFormValue({ ...data });
+    setFormType(FORM_TYPE_UPDATE);
+  };
+
+  const clear = () => {
+    setFormValue({ ...initFormValue });
+    setErrors({});
+    setFormType(FORM_TYPE_ADD);
+  };
+
   useEffect(() => {
-    // TODO : isOpen일 경우에 상세 api 호출 할지 결정 : if(isOpen)
     if (isOpen) {
-      if (detailInfo) {
-        setFormValue(detailInfo);
+      if (modalDetailId) {
+        getDetail(modalDetailId);
       } else {
         setFormValue({ ...initFormValue });
       }
+    } else {
+      clear();
     }
-  }, [isOpen, detailInfo]);
+  }, [isOpen, modalDetailId]);
 
   return (
     <>
@@ -1066,9 +1082,9 @@ function <%= fileName %>(props) {
           {/* 하단 버튼 영역 */}
           <div className="pop_btns">
             <AppButton size="large" value="취소" variant="lower" onClick={closeModal} />
-            <AppButton size="large" value="확인" onClick={closeModal} />
+            <AppButton size="large" value="확인" onClick={save} />
           </div>
-          <span className="pop_close" onClick={save}>
+          <span className="pop_close" onClick={closeModal}>
             X
           </span>
         </div>
