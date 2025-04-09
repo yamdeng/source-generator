@@ -1169,7 +1169,7 @@ import AppCommonSearchLayer from "@/components/common/AppCommonSearchLayer";
 
 function <%= fileName %>(props) {
   const { store } = props;
-  const { changeSearchInput, searchParam } = store;
+  const { changeSearchInput, searchParam, resetSearchLayer, searchDetailLayer } = store;
   const { <% tableColumns.forEach((columnInfo)=> { %> <%= columnInfo.column_name %>,<% }) %> } = searchParam;
 
   const childComponent = (
@@ -1299,8 +1299,8 @@ function <%= fileName %>(props) {
         </AppAreaDirect><% }) %><% }) %>
       </AppAreaDirect>
       <AppAreaDirect direction="row" gap={10} uniform={false} className="justify-content-end">
-        <AppButton value="검색" size="large" />
-        <AppButton value="초기화" size="large" variant="secondary" />
+        <AppButton value="검색" size="large" onClick={() => searchDetailLayer()} />
+        <AppButton value="초기화" size="large" variant="secondary" onClick={() => resetSearchLayer()} />
       </AppAreaDirect>
     </AppAreaDirect>
   );
