@@ -1306,7 +1306,7 @@ function <%= fileName %>(props) {
   );
   
   return (
-    <AppCommonSearchLayer style={{ width: '250px' }} searchLayerCustomComponent={childComponent}></AppCommonSearchLayer>
+    <AppCommonSearchLayer style={{ width: '250px' }} searchLayerCustomComponent={childComponent} store={store}></AppCommonSearchLayer>
   );
 }
 export default <%= fileName %>;
