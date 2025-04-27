@@ -54,7 +54,7 @@ const tableEntityMapping = {
   TAS_A_PUBDOC_LOG: { entityName: "ApporvalPubdocLog", apiPath: "" },
   TAS_APPACTION_LOG: { entityName: "ApprovalActionLog", apiPath: "" },
   TAS_COR_CONFIG: { entityName: "ApprovalCorConfig", apiPath: "" },
-  TAS_CABINET_LINE_MAPPING: { entityName: "CabinetLineMapping", apiPath: "" },
+  TAS_CABINET_LINE_MAPPING: { entityName: "ApprovalCabinetLineMapping", apiPath: "" },
   TAS_CD_SUB_CONFIG: { entityName: "ApprovalCDSubConfig", apiPath: "" },
   TAS_CODE: { entityName: "ApprovalCode", apiPath: "" },
   TAS_COR_MANAGER: { entityName: "ApprovalCorporationManager", apiPath: "" },
