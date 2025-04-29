@@ -11,6 +11,11 @@ const Constant = require("./constant");
 const tableEntityMapping = require("./table-mapping");
 const db = require("./db");
 
+const baseIndent = "    ";
+const selectWildIndent = baseIndent.repeat(3);
+const firstWildIndent = baseIndent.repeat(2);
+const wildIndent = baseIndent.repeat(4);
+
 /* 서버 구동시 generatorFileMap 변수에 generatorKey, fileName 반영 */
 function readTemplateFile(generatorFileMap) {
   const templateFileList = Config.templateFileList;
@@ -325,12 +330,14 @@ async function getEjsParameter(tableName, checkedColumns) {
   columnList.forEach((columnDbInfo, columnListIndex) => {
     const { column_name, column_comment, camel_case } = columnDbInfo;
     // 마지막이 아닌 경우에만 반영
+
+    const applyWildIndent = columnListIndex === 0 ? "" : selectWildIndent;
     if (columnListIndex !== columnList.length - 1) {
-      selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name}, /* ${column_comment} */ \n`;
-      // selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} as ${camel_case}, /* ${column_comment} */ \n`;
+      selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? applyWildIndent + column_name : column_name}, /* ${column_comment} */ \n`;
+      // selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? wildIndent + column_name : column_name} as ${camel_case}, /* ${column_comment} */ \n`;
     } else {
-      selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} /* ${column_comment} */`;
-      // selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? "\t\t\t\t" + column_name : column_name} as ${camel_case} /* ${column_comment} */`;
+      selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? applyWildIndent + column_name : column_name} /* ${column_comment} */`;
+      // selectColumnNames = selectColumnNames + `${columnListIndex !== 0 ? wildIndent + column_name : column_name} as ${camel_case} /* ${column_comment} */`;
     }
   });
 
@@ -371,38 +378,41 @@ async function getEjsParameter(tableName, checkedColumns) {
     if (java_type === "LocalDateTime") {
       existLocalDateTime = true;
       existJsonFormat = true;
-      dtoMembers = dtoMembers + `\t@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")\n`;
+      dtoMembers = dtoMembers + `${baseIndent}@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")\n`;
     } else if (java_type === "LocalDate") {
       existLocalDate = true;
       existJsonFormat = true;
-      dtoMembers = dtoMembers + `\t@JsonFormat(pattern = "yyyy-MM-dd")\n`;
+      dtoMembers = dtoMembers + `${baseIndent}@JsonFormat(pattern = "yyyy-MM-dd")\n`;
     }
 
     if (isFirstLowerSecondUpper) {
-      dtoMembers = dtoMembers + `\t@JsonProperty("${camel_case}")\n`;
+      dtoMembers = dtoMembers + `${baseIndent}@JsonProperty("${camel_case}")\n`;
     }
 
     if (notBlankAnnotationApply) {
-      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotNull\n\t@NotBlank\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
-      // dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotBlank\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+      dtoMembers = dtoMembers + `${baseIndent}@Schema(description = "${column_comment}")\n${baseIndent}@NotNull\n${baseIndent}@NotBlank\n` + `${baseIndent}private ${java_type} ${camel_case};\n\n`;
+      // dtoMembers = dtoMembers + `${baseIndent}@Schema(description = "${column_comment}")\n${baseIndent}@NotBlank\n` + `${baseIndent}private ${java_type} ${camel_case};\n\n`;
     } else if (notNullAnnotationApply) {
-      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n\t@NotNull\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+      dtoMembers = dtoMembers + `${baseIndent}@Schema(description = "${column_comment}")\n${baseIndent}@NotNull\n` + `${baseIndent}private ${java_type} ${camel_case};\n\n`;
     } else {
-      dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+      dtoMembers = dtoMembers + `${baseIndent}@Schema(description = "${column_comment}")\n` + `${baseIndent}private ${java_type} ${camel_case};\n\n`;
     }
+
+    const applyWildIndent = columnListIndex === 0 ? firstWildIndent : wildIndent;
 
     // mybatis <if> 반영 insert, update
     if (is_nullable === "YES" && is_primary_key === "N") {
       ifCheckInsertColumns =
-        ifCheckInsertColumns + `\t\t\t\t<if test="${camel_case} != null and !${camel_case}.equals('')">${column_name},</if>${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+        ifCheckInsertColumns + `${applyWildIndent}<if test="${camel_case} != null and !${camel_case}.equals('')">${column_name},</if>${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
       ifCheckInsertValues =
-        ifCheckInsertValues + `\t\t\t\t<if test="${camel_case} != null and !${camel_case}.equals('')">#{${camel_case}},</if>${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+        ifCheckInsertValues + `${applyWildIndent}<if test="${camel_case} != null and !${camel_case}.equals('')">#{${camel_case}},</if>${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
       ifCheckUpdateColumns =
-        ifCheckUpdateColumns + `\t\t\t\t<if test="${camel_case} != null and ${camel_case} != ''">${column_name} = #{${camel_case}},</if>${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+        ifCheckUpdateColumns +
+        `${applyWildIndent}<if test="${camel_case} != null and ${camel_case} != ''">${column_name} = #{${camel_case}},</if>${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
     } else {
-      ifCheckInsertColumns = ifCheckInsertColumns + `\t\t\t\t${column_name},${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
-      ifCheckInsertValues = ifCheckInsertValues + `\t\t\t\t#{${camel_case}},${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
-      ifCheckUpdateColumns = ifCheckUpdateColumns + `\t\t\t\t${column_name} = #{${camel_case}},${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+      ifCheckInsertColumns = ifCheckInsertColumns + `${applyWildIndent}${column_name},${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+      ifCheckInsertValues = ifCheckInsertValues + `${applyWildIndent}#{${camel_case}},${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
+      ifCheckUpdateColumns = ifCheckUpdateColumns + `${applyWildIndent}${column_name} = #{${camel_case}},${columnListIndex === saveColumnList.length - 1 ? "" : "\n"}`;
     }
   });
 
@@ -549,20 +559,20 @@ async function getResponseDtoEjsParameter(mainTableName, columnList, prefixPacka
 
     if (isFirstLowerSecondUpper(camel_case)) {
       existJsonProperty = true;
-      dtoMembers = dtoMembers + `\t@JsonProperty("${camel_case}")\n`;
+      dtoMembers = dtoMembers + `${baseIndent}@JsonProperty("${camel_case}")\n`;
     }
 
     if (java_type === "LocalDateTime") {
       existLocalDateTime = true;
       existJsonFormat = true;
-      dtoMembers = dtoMembers + `\t@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")\n`;
+      dtoMembers = dtoMembers + `${baseIndent}@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")\n`;
     } else if (java_type === "LocalDate") {
       existLocalDate = true;
       existJsonFormat = true;
-      dtoMembers = dtoMembers + `\t@JsonFormat(pattern = "yyyy-MM-dd")\n`;
+      dtoMembers = dtoMembers + `${baseIndent}@JsonFormat(pattern = "yyyy-MM-dd")\n`;
     }
 
-    dtoMembers = dtoMembers + `\t@Schema(description = "${column_comment}")\n` + `\tprivate ${java_type} ${camel_case};\n\n`;
+    dtoMembers = dtoMembers + `${baseIndent}@Schema(description = "${column_comment}")\n` + `${baseIndent}private ${java_type} ${camel_case};\n\n`;
   });
 
   let tableDescription = "";
