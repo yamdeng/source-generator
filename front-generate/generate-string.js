@@ -843,10 +843,33 @@ function <%= fileName %>(props) {
 
   const { <% tableColumns.forEach((columnInfo)=> { %> <%= columnInfo.column_name %>,<% }) %> } = formValue;
 
-  const changeInput = (inputName, inputValue) => {
-    setFormValue((formValue) => {
-      formValue[inputName] = inputValue;
+  // const changeInput = (inputName, inputValue) => {
+  //   setFormValue((formValue) => {
+  //     formValue[inputName] = inputValue;
+  //   });
+  // };
+
+  const changeInput = async (inputName: string, inputValue: any) => {
+    setFormValue((draft) => {
+      draft[inputName] = inputValue;
     });
+
+    try {
+      await yupFormSchema.validateAt(inputName, {
+        ...formValue,
+        [inputName]: inputValue,
+      });
+
+      setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [inputName]: null,
+      }));
+    } catch (error: any) {
+      setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [inputName]: error.message,
+      }));
+    }
   };
 
   const save = async () => {
@@ -1169,8 +1192,8 @@ import AppCommonSearchLayer from "@/components/common/AppCommonSearchLayer";
 
 function <%= fileName %>(props) {
   const { store } = props;
-  const { changeSearchInput, searchParam, resetSearchLayer, searchDetailLayer } = store;
-  const { <% tableColumns.forEach((columnInfo)=> { %> <%= columnInfo.column_name %>,<% }) %> } = searchParam;
+  const { changeSearchInput, searchParam, resetSearchLayer, searchDetailLayer, enterSearch } = store;
+  const { <% tableColumns.forEach((columnInfo)=> { %> <%= columnInfo.column_name %>,<% }) %> searchWord } = searchParam;
 
   const childComponent = (
     <AppAreaDirect direction="column" gap={10}>
@@ -1306,7 +1329,16 @@ function <%= fileName %>(props) {
   );
   
   return (
-    <AppCommonSearchLayer style={{ width: '250px' }} searchLayerCustomComponent={childComponent} store={store}></AppCommonSearchLayer>
+    <AppCommonSearchLayer
+      style={{ width: '250px' }}
+      searchLayerCustomComponent={childComponent}
+      store={store}
+      search={enterSearch}
+      value={searchWord}
+      onChange={(inputValue) => {
+        changeSearchInput('searchWord', inputValue);
+      }}
+    ></AppCommonSearchLayer>
   );
 }
 export default <%= fileName %>;
