@@ -1322,8 +1322,8 @@ function <%= fileName %>(props) {
         </AppAreaDirect><% }) %><% }) %>
       </AppAreaDirect>
       <AppAreaDirect direction="row" gap={10} uniform={false} className="justify-content-end">
+        <AppButton value="초기화" size="large" variant="lower" onClick={() => resetSearchLayer()} />
         <AppButton value="검색" size="large" onClick={() => searchDetailLayer()} />
-        <AppButton value="초기화" size="large" variant="secondary" onClick={() => resetSearchLayer()} />
       </AppAreaDirect>
     </AppAreaDirect>
   );
