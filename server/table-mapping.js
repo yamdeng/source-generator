@@ -60,7 +60,7 @@ const tableEntityMapping = {
   TAS_GROUP: { entityName: "ApprovalGroup", apiPath: "" },
   TAS_GROUP_DETAIL: { entityName: "ApprovalGroupDetail", apiPath: "" },
   TAS_LATEST_DOC: { entityName: "ApprovalLatestSample", apiPath: "" },
-  TAS_LIKED_CABINET: { entityName: '"ApprovalLikedCabinet', apiPath: "" },
+  TAS_LIKED_CABINET: { entityName: "ApprovalLikedCabinet", apiPath: "" },
   TAS_NUM_CONFIG: { entityName: "ApprovalNumberConfig", apiPath: "" },
   TAS_OPEN_TYPE: { entityName: "ApprovalOpenType", apiPath: "" },
   TAS_PENDING_DOC_MAPPING: { entityName: "ApprovalPendingDocMapping", apiPath: "" },
@@ -80,7 +80,7 @@ const tableEntityMapping = {
   TAS_USER_ABSENCE_HISTORY: { entityName: "ApprovalUserAbsenceHistory", apiPath: "" },
   TAS_USER_CONFIG: { entityName: "ApprovalUserConfig", apiPath: "" },
   TAS_USER_DOC: { entityName: "ApprovalUserDoc", apiPath: "" },
-  TRS_DISTRIBUTION: { entityName: "RegistrationDistribution", apiPath: "" },
+  TRS_DISTRIBUTION: { tas_ibk_link_doc_infoentityName: "RegistrationDistribution", apiPath: "" },
   TRS_MOVE_RECORDS: { entityName: "RegistrationMoveRecords", apiPath: "" },
   TRS_R_CABINET: { entityName: "RegistrationCabinet", apiPath: "" },
   TRS_RECORDS: { entityName: "RegistrationRecords", apiPath: "/site-admin/record" },
@@ -100,8 +100,8 @@ const tableEntityMapping = {
   TAS_IBK_LOAN_DOC_MAPPING: { entityName: "IbkLoanDocMapping", apiPath: "/site-admin/ibk-loan-doc-mapping" },
   TAS_SAMPLE_DOC_A_LINE2: { entityName: "ApprovalSampleDocLine2", apiPath: "" },
   TAS_DEPT_DOC: { entityName: "ApprovalDeptDoc", apiPath: "" },
-  TAS_LIKED_DOC: { entityName: '"ApprovalLikedDoc', apiPath: "" },
-  TAS_IBK_LINK_DOC_INFO: { entityName: '"ApprovalIbkLinkDocInfo', apiPath: "" },
+  TAS_LIKED_DOC: { entityName: "ApprovalLikedDoc", apiPath: "" },
+  TAS_IBK_LINK_DOC_INFO: { entityName: "ApprovalIbkLinkDocInfo", apiPath: "" },
 };
 
 module.exports = tableEntityMapping;
