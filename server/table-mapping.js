@@ -21,7 +21,7 @@ const tableEntityMapping = {
   TO0_GLOBAL_SETTING: { entityName: "GlobalSetting", apiPath: "/site-admin/global-setting" },
   TO0_SETTING_INFO: { entityName: "SettingInfo", apiPath: "/site-admin/setting" },
   TO0_USER_ADD_JOB: { entityName: "UserAddJob", apiPath: "" },
-  TO0_USER_ACTION_LOG: { entityName: "UserLogInfo", apiPath: "/site-admin/user-action-log" },
+  TO0_USER_ACTION_LOG: { entityName: "UserActionLog", apiPath: "/site-admin/user-action-log" },
   TO0_USER_MAIN: { entityName: "User", apiPath: "/site-admin/user", alias: "user_main" },
   TO0_PUSH_ALARM: { entityName: "PushAlarm", apiPath: "" },
   TM0_ADMIN_MENU: { entityName: "AdminMenu", apiPath: "/site-admin/admin-menu" },
