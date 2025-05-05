@@ -8,7 +8,7 @@ public interface <%= entityName %>Service {
 
     <%= entityName %>Dto select<%= entityName %>(<%= idDefaultJavaType %> id);
 
-    PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto pageParamDto);
+    PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto paramDto);
 
     <%= entityName %>Dto create<%= entityName %>(<%= entityName %>Dto <%= entityNameFirstLower %>Dto);
 

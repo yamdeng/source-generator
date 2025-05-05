@@ -263,3 +263,26 @@ SELECT 'drop table ' || table_name || ';'
 FROM information_schema.tables
 WHERE table_type = 'BASE TABLE' and table_schema = 'elsn';
 
+
+-- 테이블 정보 추출 : 0505
+select lower(table_name), obj_description(oid) AS table_comment, obj_description(oid) AS table_comment2
+from information_schema.tables a
+left join pg_class b on a.table_name = b.relname and b.relowner = 16388
+where table_schema = 'elsown'
+order by table_name;
+
+-- 컬럼 정보 추출 : 0505
+select all_table.*, concat('[정책자금 전자결재솔루션]: ', column_comment) as "속성설명"
+from (
+SELECT table_name,
+		(select obj_description(oid)
+		from pg_class a
+		where a.relname = cols.table_name and a.relowner = 16388) as table_comment
+       ,column_name
+       ,(SELECT pg_catalog.Col_description(c.oid, cols.ordinal_position :: INT)
+         FROM   pg_catalog.pg_class c
+         WHERE  c.oid = (SELECT cols.table_name :: regclass :: oid)
+                AND c.relname = cols.table_name)                                   AS column_comment
+FROM   information_schema.columns cols
+WHERE  cols.table_schema = 'elsown'
+ORDER BY table_name, ordinal_position) all_table

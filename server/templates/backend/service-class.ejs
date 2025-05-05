@@ -21,9 +21,9 @@ public class <%= entityName %>ServiceImpl extends AbstractCommonDaoService imple
 
     @SuppressWarnings("unchecked")
     @Override
-    public PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto pageParamDto) {
+    public PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto paramDto) {
 
-        List<<%= entityName %>Dto> resultList = commonSqlDao.selectList("<%= entityName %>.selectList", pageParamDto);
+        List<<%= entityName %>Dto> resultList = commonSqlDao.selectList("<%= entityName %>.selectList", paramDto);
 
         return PageInfo.of(resultList);
     }

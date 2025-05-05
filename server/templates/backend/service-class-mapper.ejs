@@ -25,9 +25,9 @@ public class <%= entityName %>ServiceMapperImpl implements <%= entityName %>Serv
 
     @SuppressWarnings("unchecked")
     @Override
-    public PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto pageParamDto) {
+    public PageInfo<<%= entityName %>Dto> select<%= entityName %>List(<%= entityName %>Dto paramDto) {
 
-        List<<%= entityName %>Dto> resultList = <%= entityNameFirstLower %>Mapper.selectList(pageParamDto);
+        List<<%= entityName %>Dto> resultList = <%= entityNameFirstLower %>Mapper.selectList(paramDto);
 
         return PageInfo.of(resultList);
     }
