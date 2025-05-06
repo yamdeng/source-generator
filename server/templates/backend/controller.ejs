@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -43,9 +44,8 @@ public class <%= entityName %>Controller {
     @GetMapping("<%= apiPath %>")
     public ResponseEntity<?> select<%= entityName %>List(
         @RequestParam(value="pageNum", required=false, defaultValue="1") int pageNum,
-        @RequestParam(value="pageSize", required=false, defaultValue="10") int pageSize) {
-
-        <%= entityName %>Dto paramDto = new <%= entityName %>Dto();
+        @RequestParam(value="pageSize", required=false, defaultValue="10") int pageSize,
+        @ModelAttribute <%= entityName %>Dto paramDto) {
 
         // Page 조회
         PageHelper.startPage(pageNum, pageSize);
