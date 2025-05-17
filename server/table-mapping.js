@@ -74,7 +74,7 @@ const tableEntityMapping = {
   TAS_USER_ABSENCE_HISTORY: { entityName: "ApprovalUserAbsenceHistory", apiPath: "" },
   TAS_USER_CONFIG: { entityName: "ApprovalUserConfig", apiPath: "" },
   TAS_USER_DOC: { entityName: "ApprovalUserDoc", apiPath: "" },
-  TRS_DISTRIBUTION: { tas_ibk_link_doc_infoentityName: "RegistrationDistribution", apiPath: "" },
+  TRS_DISTRIBUTION: { entityName: "RegistrationDistribution", apiPath: "" },
   TRS_MOVE_RECORDS: { entityName: "RegistrationMoveRecords", apiPath: "" },
   TRS_R_CABINET: { entityName: "RegistrationCabinet", apiPath: "" },
   TRS_RECORDS: { entityName: "RegistrationRecords", apiPath: "/site-admin/record" },
