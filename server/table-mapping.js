@@ -31,7 +31,7 @@ const tableEntityMapping = {
   TAS_A_DOC_REVISION: { entityName: "ApprovalDocRevision", apiPath: "/approval-revision" },
   TAS_A_DOC_ATTACHED: { entityName: "ApprovalDocLink", apiPath: "/approval-doc-link" },
   TAS_A_DOC_H_MANAGE: { entityName: "ApprovalDocHisotryManage", apiPath: "/approval-doc-history" },
-  TAS_A_DOC_INFO: { entityName: "ApprovalDocInfo", apiPath: "/approval-doc-info" },\
+  TAS_A_DOC_INFO: { entityName: "ApprovalDocInfo", apiPath: "/approval-doc-info" },
   TAS_A_LINE: { entityName: "ApprovalLine", apiPath: "" },
   TAS_A_LINE_GROUP: { entityName: "ApprovalLineGroup", apiPath: "" },
   TAS_A_LINE_GROUP_DETAIL: { entityName: "ApprovalLineGroupDetail", apiPath: "" },
