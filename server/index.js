@@ -17,6 +17,7 @@ const {
   getResponseDtoEjsParameter,
   getBodyRequestInfoByColumnList,
 } = require("./util");
+const tableEntityMapping = require("./table-mapping");
 const db = require("./db");
 
 // ======= server init start =======
@@ -178,6 +179,38 @@ app.get("/api/generate/:templateType/:tableName/fileDownload", async (req, res) 
   }
 
   res.download(downloadFileName);
+});
+
+app.get("/api/generate-all/file", async (req, res) => {
+  const tableNameList = Object.keys(tableEntityMapping);
+  const generatorKey = req.query.generatorKey; // 단건 (예: 'DTO', 'SQL')
+  const templateType = req.query.templateType || "backend"; // 기본값: 'backend'
+
+  if (!generatorKey) {
+    return res.status(400).json({ success: false, message: "generatorKey is required." });
+  }
+
+  const generateResults = [];
+
+  for (const tableName of tableNameList) {
+    try {
+      const ejsParameter = await getEjsParameter(tableName, []);
+      const generatorResult = getGeneratorResult(tableName, generatorFileMap, ejsParameter, templateType);
+      const detailInfo = generatorResult[generatorKey];
+      if (detailInfo) {
+        await createFiledownloadByGeneratorDetailInfo(detailInfo);
+      }
+    } catch (e) {
+      console.error(`Generation failed for ${tableName}`, e);
+    }
+  }
+
+  res.json({
+    success: true,
+    generatorKey,
+    total: generateResults.length,
+    results: generateResults,
+  });
 });
 
 /* generate 결과물 result/:templateType 폴더에 파일 생성 */
