@@ -12,7 +12,7 @@ const tableEntityMapping = require("./table-mapping");
 const db = require("./db");
 
 const baseIndent = "    ";
-const selectWildIndent = baseIndent.repeat(3);
+const selectWildIndent = baseIndent.repeat(2);
 const firstWildIndent = baseIndent.repeat(2);
 const wildIndent = baseIndent.repeat(4);
 
